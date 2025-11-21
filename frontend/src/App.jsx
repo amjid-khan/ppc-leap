@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Form from "./pages/Form.jsx";
-import Dashboard from "./component/Dashboard.jsx";
+import FeedData from "./component/FeedData.jsx";
+import AdminLayout from "./component/AdminLayout.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
 // ProtectedRoute for pages only accessible if logged in
@@ -18,7 +19,7 @@ const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div>Loading...</div>;
-  if (user) return <Navigate to="/dashboard" />; // redirect to dashboard if already logged in
+  if (user) return <Navigate to="/admin" />; // redirect to admin if already logged in
   return children;
 };
 
@@ -26,6 +27,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Login/Register Page */}
         <Route
           path="/"
           element={
@@ -34,14 +36,22 @@ function App() {
             </PublicRoute>
           }
         />
+
+        {/* Admin Routes with Layout */}
         <Route
-          path="/dashboard"
+          path="/admin"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Default open page = FeedData */}
+          <Route index element={<FeedData />} />
+
+          {/* FeedData Route */}
+          <Route path="feeddata" element={<FeedData />} />
+        </Route>
       </Routes>
     </Router>
   );

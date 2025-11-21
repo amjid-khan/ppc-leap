@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
-
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -48,15 +47,38 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  };
 
-const logout = () => {
-  setUser(null);
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
-  navigate("/"); // redirect to login after logout
-};
+  // ✅ New: Fetch products from backend API
+  const fetchProducts = async () => {
+    try {
+      // Optional: attach token if needed
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await axios.get(`${API}/api/merchant/products`, { headers });
+
+      if (res.data.success) {
+        console.log("Products fetched successfully:", res.data.data);
+        return res.data.data;
+      } else {
+        console.error("Failed to fetch products:", res.data.message);
+        return [];
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err.message);
+      return [];
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, register, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, register, login, logout, fetchProducts }}
+    >
       {children}
     </AuthContext.Provider>
   );
