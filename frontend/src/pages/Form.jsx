@@ -45,7 +45,7 @@ const Form = () => {
       setError(res.message);
     } else {
       resetForm();
-      navigate("/dashboard");
+      navigate("/admin");
     }
 
     setLoading(false);

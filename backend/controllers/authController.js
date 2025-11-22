@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { generateToken } from "../utils/token.js";
+import jwt from "jsonwebtoken";
 
 
 // REGISTER
@@ -65,5 +66,33 @@ export const getAllUsers = async (req, res) => {
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+// VERIFY TOKEN
+export const verifyToken = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.startsWith("Bearer") 
+            ? authHeader.split(" ")[1] 
+            : null;
+        
+        if (!token) {
+            return res.status(401).json({ success: false, message: "No token provided" });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select("-password");
+        
+        if (!user) {
+            return res.status(401).json({ success: false, message: "User not found" });
+        }
+
+        res.json({
+            success: true,
+            user: { id: user._id, name: user.name, email: user.email },
+        });
+    } catch (err) {
+        res.status(401).json({ success: false, message: "Invalid or expired token" });
     }
 };
