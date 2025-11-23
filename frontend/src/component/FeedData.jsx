@@ -350,5 +350,3 @@ const FeedData = () => {
 };
 
 export default FeedData;
-
-
