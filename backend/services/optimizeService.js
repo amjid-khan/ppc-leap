@@ -1,42 +1,53 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
-dotenv.config(); // Ensure API key is loaded
+dotenv.config(); // Ensure GEMINI_API_KEY is loaded
 
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+// Gemini client
+const client = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
 });
 
 const optimizeService = {
     optimizeTitleDescription: async (title, description) => {
         const prompt = `
-    Improve product title and description for Google Merchant Center.
-    Make it SEO friendly, clean and professional.
+Improve product title and description for Google Merchant Center.
+Make it SEO friendly, clean and professional.
 
-    OLD TITLE: ${title}
-    OLD DESCRIPTION: ${description}
+OLD TITLE: ${title}
+OLD DESCRIPTION: ${description}
 
-    Return strictly JSON only as:
-    {
-      "title": "new title",
-      "description": "new description"
-    }
+Return strictly JSON only as:
+{
+  "title": "new title",
+  "description": "new description"
+}
     `;
 
-        const response = await client.chat.completions.create({
-            model: "gpt-4o",
-            messages: [{ role: "user", content: prompt }]
+        // Gemini API call
+        const response = await client.models.generateContent({
+            model: "gemini-2.5-flash", // ya koi bhi Gemini model
+            contents: prompt,
+            config: {
+                temperature: 0.8,
+            },
         });
 
-        const text = response.choices[0].message.content.trim();
+        // Gemini response text
+        let text = response.text?.trim();
+
+        // ✅ Clean code block or backticks if present
+        if (text.startsWith("```")) {
+            text = text.replace(/```json|```/g, "").trim();
+        }
 
         try {
             return JSON.parse(text);
         } catch (err) {
-            console.error("Failed to parse OpenAI response:", text);
+            console.error("Failed to parse Gemini response:", text);
             throw err;
         }
-    }
+    },
 };
 
 export default optimizeService;

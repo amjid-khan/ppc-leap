@@ -94,74 +94,133 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     return !!token && !!user;
   };
+const fetchProducts = async (page = 1, limit = 20, searchQuery = "") => {
+  try {
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
 
-  // ✅ New: Fetch products from backend API
-  // const fetchProducts = async () => {
-  //   try {
-  //     // Optional: attach token if needed
-  //     const token = localStorage.getItem("token");
-  //     const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const headers = { 
+      Authorization: `Bearer ${token}`,
+      'Cache-Control': 'no-cache' // Prevent browser caching issues
+    };
 
-  //     const res = await axios.get(`${API}/api/merchant/products`, { headers });
+    // Optimized URL construction
+    const baseUrl = `${API}/api/merchant/products`;
+    const params = new URLSearchParams({
+      page: Math.max(1, page),
+      limit: Math.min(100, Math.max(1, limit)) // Limit to 100 max
+    });
+    
+    if (searchQuery && searchQuery.trim()) {
+      params.append('search', searchQuery.trim().substring(0, 100)); // Limit search length
+    }
 
-  //     if (res.data.success) {
-  //       console.log("Products fetched successfully:", res.data.data);
-  //       return res.data.data;
-  //     } else {
-  //       console.error("Failed to fetch products:", res.data.message);
-  //       return [];
-  //     }
-  //   } catch (err) {
-  //     console.error("Error fetching products:", err.message);
-  //     return [];
-  //   }
-  // };
+    const url = `${baseUrl}?${params.toString()}`;
+    
+    console.time(`API_Fetch_Products_${page}`);
+    const res = await axios.get(url, { 
+      headers,
+      timeout: 30000 // 30 second timeout
+    });
+    console.timeEnd(`API_Fetch_Products_${page}`);
 
-
-  const fetchProducts = async (page = 1, limit = 50, searchQuery = "") => {
-    try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const params = new URLSearchParams();
-      params.append('page', page);
-      params.append('limit', limit);
-      if (searchQuery) {
-        params.append('search', searchQuery);
-      }
-
-      const res = await axios.get(`${API}/api/merchant/products?${params.toString()}`, { headers });
-
-      if (res.data.success) {
-        return {
-          products: res.data.data || [],
-          pagination: res.data.pagination || {
-            total: 0,
-            page: 1,
-            limit: 50,
-            totalPages: 0
-          }
-        };
-      } else {
-        console.error("Failed to fetch products:", res.data.message);
-        return {
-          products: [],
-          pagination: { total: 0, page: 1, limit: 50, totalPages: 0 }
-        };
-      }
-    } catch (err) {
-      console.error("Error fetching products:", err.message);
+    if (res.data.success) {
+      return {
+        products: res.data.data || [],
+        pagination: res.data.pagination || {
+          total: 0,
+          page: page,
+          limit: limit,
+          totalPages: 0
+        }
+      };
+    } else {
+      console.warn("API returned non-success:", res.data.message);
       return {
         products: [],
-        pagination: { total: 0, page: 1, limit: 50, totalPages: 0 }
+        pagination: { 
+          total: 0, 
+          page: page, 
+          limit: limit, 
+          totalPages: 0 
+        }
       };
     }
-  };
+  } catch (err) {
+    console.error("Error fetching products:", {
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status
+    });
+
+    // Return user-friendly error information
+    let errorMessage = "Failed to fetch products";
+    
+    if (err.code === 'ECONNABORTED') {
+      errorMessage = "Request timeout. Please try again.";
+    } else if (err.response?.status === 401) {
+      errorMessage = "Session expired. Please login again.";
+      // Optional: Clear token and redirect to login
+      localStorage.removeItem("token");
+      window.location.href = '/login';
+    } else if (err.response?.status === 404) {
+      errorMessage = "Products endpoint not found.";
+    } else if (err.response?.status >= 500) {
+      errorMessage = "Server error. Please try again later.";
+    }
+
+    throw new Error(errorMessage);
+  }
+};
+
+const fetchBrands = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const res = await axios.get(`${API}/api/merchant/products?limit=100`, { headers });
+
+    if (res.data.success) {
+      // Extract unique brands from products
+      const products = res.data.data || [];
+      const uniqueBrands = [...new Map(
+        products
+          .filter(product => product.brand && product.brand.trim() !== "")
+          .map(product => [product.brand, {
+            name: product.brand,
+            id: product.id || product.sku || Math.random().toString(36).substr(2, 9),
+            productCount: products.filter(p => p.brand === product.brand).length
+          }])
+      ).values()];
+
+      console.log("Brands extracted:", uniqueBrands);
+      return {
+        brands: uniqueBrands,
+        totalBrands: uniqueBrands.length
+      };
+    } else {
+      console.error("Failed to fetch brands:", res.data.message);
+      return {
+        brands: [],
+        totalBrands: 0
+      };
+    }
+  } catch (err) {
+    console.error("Error fetching brands:", err.message);
+    return {
+      brands: [],
+      totalBrands: 0
+    };
+  }
+};
 
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, register, login, logout, fetchProducts, isAuthenticated }}
+      value={{ user, loading, register, login, logout, fetchProducts, isAuthenticated ,fetchBrands }}
     >
       {children}
     </AuthContext.Provider>

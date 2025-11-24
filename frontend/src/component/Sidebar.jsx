@@ -57,7 +57,7 @@ const Sidebar = () => {
         <div className="p-4 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center gap-3 px-3 py-3 bg-white rounded-lg border border-slate-200 shadow-sm">
             {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-lg font-bold shadow-md">
+            <div className="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center text-lg font-bold shadow-md">
               {avatarLetter}
             </div>
             
@@ -89,7 +89,7 @@ const Sidebar = () => {
                   className={`
                     group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${isActive 
-                      ? "bg-blue-50 text-blue-600 border border-blue-100" 
+                      ? "bg-blue-50 text-green-600 border border-blue-100" 
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
                     }
                   `}
@@ -97,7 +97,7 @@ const Sidebar = () => {
                   <div className={`
                     absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full transition-all duration-200
                     ${isActive 
-                      ? "bg-blue-600 opacity-100" 
+                      ? "bg-green-600 opacity-100" 
                       : "bg-slate-300 opacity-0 group-hover:opacity-100"
                     }
                   `} />
@@ -105,7 +105,7 @@ const Sidebar = () => {
                   <Icon
                     className={`w-5 h-5 transition-colors duration-200 ${
                       isActive 
-                        ? "text-blue-600" 
+                        ? "text-green-600" 
                         : "text-slate-400 group-hover:text-slate-600"
                     }`}
                   />

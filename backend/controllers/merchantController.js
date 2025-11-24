@@ -9,7 +9,7 @@ const merchantController = {
             const searchQuery = req.query.search || "";
 
             const result = await merchantService.getProducts(page, limit, searchQuery);
-            
+
             res.status(200).json({
                 success: true,
                 data: result.products,
