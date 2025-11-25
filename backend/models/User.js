@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema(
             required: true,
             minlength: 6,
         },
+        selectedAccount: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account",
+            default: null,
+        },
     },
     { timestamps: true }
 );

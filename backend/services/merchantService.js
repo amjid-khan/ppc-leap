@@ -1,18 +1,19 @@
 import { google } from "googleapis";
 import auth from "../config/googleAuth.js";
 
-// In-memory cache for products
-let productsCache = null;
-let cacheTimestamp = null;
+// In-memory cache for products per merchantId
+const productsCache = new Map(); // merchantId -> { products, timestamp }
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
 const merchantService = {
     // Get total count (quick method)
-    getTotalCount: async () => {
+    getTotalCount: async (merchantId) => {
         try {
+            if (!merchantId) {
+                throw new Error("Merchant ID is required");
+            }
             const authClient = await auth.getClient();
             const content = google.content({ version: "v2.1", auth: authClient });
-            const merchantId = "5400577233";
 
             // Quick count - fetch first page only
             const res = await content.products.list({
@@ -29,15 +30,21 @@ const merchantService = {
     },
 
     // Get products with pagination
-    getProducts: async (page = 1, limit = 50, searchQuery = "") => {
+    getProducts: async (merchantId, page = 1, limit = 50, searchQuery = "") => {
         try {
-            // Check if cache is valid
+            if (!merchantId) {
+                throw new Error("Merchant ID is required");
+            }
+
+            // Check if cache is valid for this merchantId
             const now = Date.now();
-            if (!productsCache || !cacheTimestamp || (now - cacheTimestamp) > CACHE_DURATION) {
+            const cacheEntry = productsCache.get(merchantId);
+            const isCacheValid = cacheEntry && (now - cacheEntry.timestamp) < CACHE_DURATION;
+
+            if (!isCacheValid) {
                 // Cache expired or doesn't exist, fetch fresh data
                 const authClient = await auth.getClient();
                 const content = google.content({ version: "v2.1", auth: authClient });
-                const merchantId = "5400577233";
 
                 let allProducts = [];
                 let pageToken = null;
@@ -58,8 +65,7 @@ const merchantService = {
                 } while (pageToken);
 
                 if (allProducts.length === 0) {
-                    productsCache = [];
-                    cacheTimestamp = now;
+                    productsCache.set(merchantId, { products: [], timestamp: now });
                     return {
                         products: [],
                         total: 0,
@@ -189,13 +195,13 @@ const merchantService = {
                     };
                 });
 
-                // Store in cache
-                productsCache = formattedProducts;
-                cacheTimestamp = now;
+                // Store in cache for this merchantId
+                productsCache.set(merchantId, { products: formattedProducts, timestamp: now });
             }
 
-            // Get products from cache
-            let filteredProducts = [...productsCache];
+            // Get products from cache for this merchantId
+            const cachedData = productsCache.get(merchantId);
+            let filteredProducts = cachedData ? [...cachedData.products] : [];
 
             // Apply search filter if provided
             if (searchQuery && searchQuery.trim()) {

@@ -6,6 +6,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Eye,
+  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -83,30 +84,36 @@ const FeedData = () => {
     setSelectedDescription(description);
   };
 
+  // Function to clean ID by removing online:en:GB: prefix
+  const cleanId = (id) => {
+    if (!id) return '';
+    return id.replace(/^online:en:GB:/, '');
+  };
+
   return (
     <div className="p-4 sm:p-6 relative min-h-[calc(100vh-64px)] flex flex-col">
-      {/* Description Modal */}
+      {/* Description Modal - Improved responsive design */}
       {selectedDescription && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-slate-200">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-slate-200 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-slate-800">Product Description</h3>
                 <button
                   onClick={() => setSelectedDescription(null)}
                   className="p-2 hover:bg-slate-100 rounded-lg transition"
                 >
-                  <ChevronLeft className="w-5 h-5 text-slate-600" />
+                  <X className="w-5 h-5 text-slate-600" />
                 </button>
               </div>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               <p className="text-slate-700 whitespace-pre-wrap">{selectedDescription}</p>
             </div>
-            <div className="p-6 border-t border-slate-200 bg-slate-50">
+            <div className="p-4 sm:p-6 border-t border-slate-200 bg-slate-50 flex-shrink-0">
               <button
                 onClick={() => setSelectedDescription(null)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                className="w-full sm:w-auto px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
               >
                 Close
               </button>
@@ -115,19 +122,27 @@ const FeedData = () => {
         </div>
       )}
 
-      <h1 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-slate-800">Feed Data</h1>
-
-      {/* Search Bar */}
-      <div className="w-full max-w-md mb-4 sm:mb-6">
-        <div className="flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-white border border-slate-300 shadow-sm hover:shadow-md transition duration-300 focus-within:border-blue-500 focus-within:shadow-blue-100">
-          <Search className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search feed data..."
-            className="w-full bg-transparent outline-none text-slate-700 text-sm sm:text-base"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      {/* Header with title and search */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-800">Feed Data</h1>
+          <p className="text-sm text-slate-600 mt-1">
+            Manage and optimize your product feed data
+          </p>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="w-full sm:w-auto sm:max-w-md">
+          <div className="flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-white border border-slate-300 shadow-sm hover:shadow-md transition duration-300 focus-within:border-blue-500 focus-within:shadow-blue-100">
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Search feed data..."
+              className="w-full bg-transparent outline-none text-slate-700 text-sm sm:text-base"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -136,19 +151,19 @@ const FeedData = () => {
         {loading ? (
           <div className="p-4 sm:p-6 text-center text-slate-500">Loading products...</div>
         ) : (
-          <div className="min-w-[1400px]"> {/* Increased minimum width to accommodate wider columns */}
+          <div className="min-w-[1400px]">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100 text-slate-700 text-xs uppercase">
                 <tr>
                   <th className="px-3 py-3 w-24">Status</th>
-                  <th className="px-3 py-3 w-64">ID</th> {/* Increased from w-32 to w-64 */}
+                  <th className="px-3 py-3 w-64">ID</th>
                   <th className="px-3 py-3 w-20">Image</th>
-                  <th className="px-3 py-3 w-96">Title</th> {/* Increased from w-64 to w-96 */}
+                  <th className="px-3 py-3 w-96">Title</th>
                   <th className="px-3 py-3 w-64">Description</th>
-                  <th className="px-3 py-3 w-40">Brand</th> {/* Increased from w-32 to w-40 */}
-                  <th className="px-3 py-3 w-40">Feed Label</th> {/* Increased from w-32 to w-40 */}
-                  <th className="px-3 py-3 w-48">Product Type</th> {/* Increased from w-40 to w-48 */}
-                  <th className="px-3 py-3 w-56">Google Category</th> {/* Increased from w-48 to w-56 */}
+                  <th className="px-3 py-3 w-40">Brand</th>
+                  <th className="px-3 py-3 w-40">Feed Label</th>
+                  <th className="px-3 py-3 w-48">Product Type</th>
+                  <th className="px-3 py-3 w-56">Google Category</th>
                   <th className="px-3 py-3 w-24">Action</th>
                 </tr>
               </thead>
@@ -179,11 +194,11 @@ const FeedData = () => {
                         </div>
                       </td>
 
-                      {/* ID - Full content show with increased width */}
+                      {/* ID - Cleaned and full content show with increased width */}
                       <td className="px-3 py-3">
                         <div className="min-h-[60px] flex items-start">
                           <span className="font-mono text-xs text-slate-700 leading-tight break-all whitespace-normal line-clamp-3">
-                            {item.id}
+                            {cleanId(item.id)}
                           </span>
                         </div>
                       </td>
@@ -222,7 +237,7 @@ const FeedData = () => {
                           {item.description && item.description.length > 100 && (
                             <button
                               onClick={() => handleViewDescription(item.description)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-slate-200 rounded"
+                              className="opacity-70 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-slate-200 rounded"
                               title="View full description"
                             >
                               <Eye className="w-4 h-4 text-slate-500" />
@@ -297,7 +312,7 @@ const FeedData = () => {
               setRowsPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="px-2 mr-3 py-1 sm:px-3 sm:py-1 rounded border border-slate-300 bg-white text-sm"
+            className="px-2 py-1 rounded border border-slate-300 bg-white text-sm"
           >
             <option value={20}>20</option>
             <option value={50}>50</option>
@@ -307,7 +322,7 @@ const FeedData = () => {
           </select>
         </div>
 
-        <div className="text-slate-700  text-sm mb-2 sm:mb-0">
+        <div className="text-slate-700 text-sm mb-2 sm:mb-0">
           {`${(currentPage - 1) * rowsPerPage + 1}–${Math.min(
             currentPage * rowsPerPage,
             totalProducts
@@ -318,28 +333,28 @@ const FeedData = () => {
           <button
             onClick={handleFirst}
             disabled={currentPage === 1}
-            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50"
+            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50 transition"
           >
             <ChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
           </button>
           <button
             onClick={handlePrev}
             disabled={currentPage === 1}
-            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50"
+            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50 transition"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
           </button>
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages}
-            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50"
+            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50 transition"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
           </button>
           <button
             onClick={handleLast}
             disabled={currentPage === totalPages}
-            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50"
+            className="p-1 sm:p-2 rounded hover:bg-slate-100 disabled:opacity-50 transition"
           >
             <ChevronsRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
           </button>
