@@ -55,49 +55,96 @@ const Navbar = () => {
       {/* RIGHT SECTION (Google-style bar) */}
       <div className="flex items-center gap-6">
 
-        {/* ACCOUNT NAME + ID + DROPDOWN */}
+        {/* ACCOUNT NAME + ID + DROPDOWN - Image जैसा Style */}
         <div className="relative" ref={dropdownRef}>
           <div
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="cursor-pointer flex flex-col items-start"
+            className="cursor-pointer flex flex-col items-start px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-gray-800 text-sm">
-                {selectedAccount?.accountName || "Select Account"}
-              </span>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-start">
+                <div className="flex items-center gap-1">
+                  <span className="font-medium text-gray-800 text-sm">
+                    {selectedAccount?.accountName || "Select Account"}
+                  </span>
 
-              {/* Dropdown Icon */}
-              <svg
-                className={`w-4 h-4 transform transition-transform duration-200 ${
-                  dropdownOpen ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+                  {/* Dropdown Icon */}
+                  <svg
+                    className={`w-4 h-4 text-gray-500 transform transition-transform duration-200 ${
+                      dropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+
+                <span className="text-xs text-gray-500">
+                  Merchant ID: {selectedAccount?.merchantId || ""}
+                </span>
+              </div>
             </div>
-
-            <span className="text-xs text-gray-500 mt-[-3px]">
-              {selectedAccount?.merchantId || ""}
-            </span>
           </div>
 
-          {/* DROPDOWN MENU */}
+          {/* DROPDOWN MENU - Image जैसा Exact Design */}
           <div
-            className={`absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden transform transition-all duration-200 ${
+            className={`absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden transform transition-all duration-200 z-50 ${
               dropdownOpen
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none"
+                ? "opacity-100 scale-100 translate-y-0"
+                : "opacity-0 scale-95 pointer-events-none -translate-y-2"
             }`}
           >
-            <div className="max-h-80 overflow-y-auto">
+            {/* Current Account Info - Image के Header जैसा */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">
+                  {selectedAccount?.accountName || "Select Account"}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Merchant Centre ID: {selectedAccount?.merchantId || ""}
+                </p>
+              </div>
+              
+              {/* Comparison Shopping Service - Image जैसा */}
+              <div className="text-xs text-gray-600">
+                <div>Comparison Shopping Service</div>
+                <div className="text-blue-600 font-medium">Google Shopping (google.com/shopping)</div>
+              </div>
+            </div>
+
+            {/* Search Section - Image जैसा */}
+            <div className="p-3 border-b border-gray-200">
+              <div className="relative">
+                <svg
+                  className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search for business"
+                  className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Accounts List */}
+            <div className="max-h-64 overflow-y-auto">
               {accounts && accounts.length > 0 ? (
                 <>
                   {accounts.map((acc) => (
@@ -106,25 +153,24 @@ const Navbar = () => {
                       onClick={async () => {
                         await switchAccount(acc._id);
                         setDropdownOpen(false);
-                        // Data will automatically refresh via useEffect in FeedData and Dashboard
                       }}
-                      className={`flex items-center p-4 hover:bg-gray-100 cursor-pointer transition ${
-                        selectedAccount?._id === acc._id ? "bg-blue-50" : ""
+                      className={`flex items-center p-3 hover:bg-gray-50 cursor-pointer transition ${
+                        selectedAccount?._id === acc._id ? "bg-blue-50 border-r-2 border-blue-500" : ""
                       }`}
                     >
-                      {/* Google-style Circle Icon */}
-                      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
-                        {acc.accountName.charAt(0).toUpperCase()}
-                      </div>
-
-                      <div className="ml-3 flex-1">
-                        <p className="text-gray-800 font-semibold">{acc.accountName}</p>
-                        <p className="text-xs text-gray-500">Merchant ID: {acc.merchantId}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {acc.accountName}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          Merchant ID: {acc.merchantId}
+                        </p>
                       </div>
                       
+                      {/* Checkmark for selected account */}
                       {selectedAccount?._id === acc._id && (
                         <svg
-                          className="w-5 h-5 text-blue-600"
+                          className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -133,21 +179,18 @@ const Navbar = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M5 13l4 4L19 7"
+                            d="M5 13l4 4L19-7"
                           />
                         </svg>
                       )}
                     </div>
                   ))}
-                  <div
-                    onClick={() => {
-                      setDropdownOpen(false);
-                      setShowAccountManagement(true);
-                    }}
-                    className="flex items-center p-4 hover:bg-gray-100 cursor-pointer transition border-t border-gray-200"
-                  >
+                </>
+              ) : (
+                <div className="p-6 text-center">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <svg
-                      className="w-5 h-5 text-gray-600 mr-3"
+                      className="w-6 h-6 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -156,33 +199,31 @@ const Navbar = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M12 4v16m8-8H4"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                       />
                     </svg>
-                    <span className="text-sm text-gray-700 font-medium">Manage Accounts</span>
                   </div>
-                </>
-              ) : (
-                <div className="p-4 text-center">
-                  <p className="text-gray-500 text-sm mb-3">No accounts found.</p>
-                  <button
-                    onClick={() => {
-                      setDropdownOpen(false);
-                      setShowAccountManagement(true);
-                    }}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                  >
-                    Add Account
-                  </button>
+                  <p className="text-gray-500 text-sm mb-3">No accounts found</p>
                 </div>
               )}
+            </div>
+
+            {/* Manage Accounts Footer - Image के "Manage in Business Manager" जैसा */}
+            <div className="border-t border-gray-200 bg-gray-50">
+              <div
+                onClick={() => {
+                  setDropdownOpen(false);
+                  setShowAccountManagement(true);
+                }}
+                className="flex items-center justify-center p-3 hover:bg-gray-200 cursor-pointer transition"
+              >
+                <span className="text-sm text-gray-700 font-medium">Manage accounts</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Google Apps Icon */}
-       
-        {/* PROFILE SECTION WITH DROPDOWN */}
+        {/* PROFILE SECTION WITH DROPDOWN - Image जैसा Design */}
         <div className="relative" ref={profileDropdownRef}>
           <div
             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -202,15 +243,15 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* PROFILE DROPDOWN MENU - Google Merchant Center Style */}
+          {/* PROFILE DROPDOWN MENU - Image जैसा Exact Design */}
           <div
             className={`absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden transform transition-all duration-200 z-50 ${
               profileDropdownOpen
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-95 pointer-events-none"
+                ? "opacity-100 scale-100 translate-y-0"
+                : "opacity-0 scale-95 pointer-events-none -translate-y-2"
             }`}
           >
-            {/* User Info Section */}
+            {/* User Info Section - Image जैसा */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center gap-3">
                 {/* Avatar in dropdown */}
@@ -226,19 +267,51 @@ const Navbar = () => {
                   </div>
                 )}
                 
-                {/* Name and Email */}
+                {/* Name and Email - Image जैसा */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {user?.name || "User"}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-sm text-gray-500 truncate">
                     {user?.email || ""}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    Hi, {user?.name?.split(' ')[0] || "User"}!
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Logout Section */}
+            {/* Manage Google Account Option - Image जैसा */}
+            <div className="p-1 border-b border-gray-200">
+              <button
+                onClick={() => {
+                  // Manage Google Account functionality
+                  setProfileDropdownOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors text-left"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>Manage your Google Account</span>
+              </button>
+            </div>
+
+            {/* Logout Section - Image जैसा */}
             <div className="p-1">
               <button
                 onClick={handleLogout}
@@ -259,6 +332,18 @@ const Navbar = () => {
                 </svg>
                 <span>Sign out</span>
               </button>
+            </div>
+
+            {/* Footer with Privacy Policy and Terms - Image जैसा */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex justify-center gap-4 text-xs">
+                <a href="#" className="text-gray-500 hover:text-gray-700 transition-colors">
+                  Privacy Policy
+                </a>
+                <a href="#" className="text-gray-500 hover:text-gray-700 transition-colors">
+                  Terms of Service
+                </a>
+              </div>
             </div>
           </div>
         </div>

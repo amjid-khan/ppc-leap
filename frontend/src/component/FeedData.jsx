@@ -120,14 +120,6 @@ const FeedData = () => {
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               <p className="text-slate-700 whitespace-pre-wrap">{selectedDescription}</p>
             </div>
-            <div className="p-4 sm:p-6 border-t border-slate-200 bg-slate-50 flex-shrink-0">
-              <button
-                onClick={() => setSelectedDescription(null)}
-                className="w-full sm:w-auto px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
