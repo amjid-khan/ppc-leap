@@ -106,8 +106,7 @@ const Navbar = () => {
                       onClick={async () => {
                         await switchAccount(acc._id);
                         setDropdownOpen(false);
-                        // Reload page to refresh products with new account
-                        window.location.reload();
+                        // Data will automatically refresh via useEffect in FeedData and Dashboard
                       }}
                       className={`flex items-center p-4 hover:bg-gray-100 cursor-pointer transition ${
                         selectedAccount?._id === acc._id ? "bg-blue-50" : ""

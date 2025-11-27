@@ -8,5 +8,6 @@ const router = express.Router();
 router.use(protect);
 
 router.get("/products", merchantController.getMerchantProducts);
+router.get("/stats", merchantController.getMerchantStats);
 
 export default router;

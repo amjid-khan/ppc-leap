@@ -11,7 +11,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 
 const FeedData = () => {
-  const { fetchProducts } = useAuth();
+  const { fetchProducts, selectedAccount } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rowsPerPage, setRowsPerPage] = useState(50);
@@ -35,9 +35,18 @@ const FeedData = () => {
 
   useEffect(() => {
     const loadProducts = async () => {
+      if (!selectedAccount) {
+        setLoading(false);
+        setProducts([]);
+        setTotalProducts(0);
+        setTotalPages(0);
+        return;
+      }
+
       setLoading(true);
       try {
         const result = await fetchProducts(currentPage, rowsPerPage, searchDebounce);
+        console.log("Products result:", result); // Debug log
         setProducts(result.products || []);
         setTotalProducts(result.pagination?.total || 0);
         setTotalPages(result.pagination?.totalPages || 0);
@@ -46,11 +55,12 @@ const FeedData = () => {
         setProducts([]);
         setTotalProducts(0);
         setTotalPages(0);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadProducts();
-  }, [fetchProducts, currentPage, rowsPerPage, searchDebounce]);
+  }, [fetchProducts, currentPage, rowsPerPage, searchDebounce, selectedAccount]);
 
   const handlePrev = () => {
     if (currentPage > 1) {
@@ -148,35 +158,102 @@ const FeedData = () => {
 
       {/* Table Container with Horizontal Scroll */}
       <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm bg-white flex-1">
-        {loading ? (
-          <div className="p-4 sm:p-6 text-center text-slate-500">Loading products...</div>
-        ) : (
-          <div className="min-w-[1400px]">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-100 text-slate-700 text-xs uppercase">
-                <tr>
-                  <th className="px-3 py-3 w-24">Status</th>
-                  <th className="px-3 py-3 w-64">ID</th>
-                  <th className="px-3 py-3 w-20">Image</th>
-                  <th className="px-3 py-3 w-96">Title</th>
-                  <th className="px-3 py-3 w-64">Description</th>
-                  <th className="px-3 py-3 w-40">Brand</th>
-                  <th className="px-3 py-3 w-40">Feed Label</th>
-                  <th className="px-3 py-3 w-48">Product Type</th>
-                  <th className="px-3 py-3 w-56">Google Category</th>
-                  <th className="px-3 py-3 w-24">Action</th>
-                </tr>
-              </thead>
+        <div className="min-w-[1400px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-100 text-slate-700 text-xs uppercase">
+              <tr>
+                <th className="px-3 py-3 w-24">Status</th>
+                <th className="px-3 py-3 w-64">ID</th>
+                <th className="px-3 py-3 w-20">Image</th>
+                <th className="px-3 py-3 w-96">Title</th>
+                <th className="px-3 py-3 w-64">Description</th>
+                <th className="px-3 py-3 w-40">Brand</th>
+                <th className="px-3 py-3 w-40">Feed Label</th>
+                <th className="px-3 py-3 w-48">Product Type</th>
+                <th className="px-3 py-3 w-56">Google Category</th>
+                <th className="px-3 py-3 w-24">Action</th>
+              </tr>
+            </thead>
 
-              <tbody>
-                {products.length === 0 && !loading ? (
-                  <tr>
-                    <td colSpan="10" className="px-4 py-8 text-center text-slate-500">
-                      No products found
+            <tbody>
+              {loading ? (
+                // Skeleton Loading Rows
+                Array.from({ length: rowsPerPage }).map((_, index) => (
+                  <tr key={`skeleton-${index}`} className="border-t animate-pulse">
+                    {/* Status Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="h-6 w-16 bg-slate-200 rounded-full"></div>
+                      </div>
+                    </td>
+                    {/* ID Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-start">
+                        <div className="h-4 w-48 bg-slate-200 rounded"></div>
+                      </div>
+                    </td>
+                    {/* Image Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="w-10 h-10 bg-slate-200 rounded-lg"></div>
+                      </div>
+                    </td>
+                    {/* Title Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-start">
+                        <div className="h-4 w-full bg-slate-200 rounded"></div>
+                      </div>
+                    </td>
+                    {/* Description Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-start gap-2">
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-full bg-slate-200 rounded"></div>
+                          <div className="h-3 w-4/5 bg-slate-200 rounded"></div>
+                          <div className="h-3 w-3/5 bg-slate-200 rounded"></div>
+                        </div>
+                      </div>
+                    </td>
+                    {/* Brand Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="h-4 w-24 bg-slate-200 rounded"></div>
+                      </div>
+                    </td>
+                    {/* Feed Label Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="h-4 w-20 bg-slate-200 rounded"></div>
+                      </div>
+                    </td>
+                    {/* Product Type Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="h-4 w-32 bg-slate-200 rounded"></div>
+                      </div>
+                    </td>
+                    {/* Google Category Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="h-4 w-40 bg-slate-200 rounded"></div>
+                      </div>
+                    </td>
+                    {/* Action Skeleton */}
+                    <td className="px-3 py-3">
+                      <div className="min-h-[60px] flex items-center">
+                        <div className="h-8 w-20 bg-slate-200 rounded"></div>
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  products.map((item, index) => (
+                ))
+              ) : products.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="px-4 py-8 text-center text-slate-500">
+                    No products found
+                  </td>
+                </tr>
+              ) : (
+                products.map((item, index) => (
                     <tr key={item.id || index} className="border-t hover:bg-slate-50 transition">
                       {/* Status */}
                       <td className="px-3 py-3">
@@ -299,7 +376,6 @@ const FeedData = () => {
               </tbody>
             </table>
           </div>
-        )}
       </div>
 
       {/* Pagination / Rows Selector */}

@@ -316,7 +316,7 @@ const fetchProducts = async (page = 1, limit = 20, searchQuery = "") => {
     const baseUrl = `${API}/api/merchant/products`;
     const params = new URLSearchParams({
       page: Math.max(1, page),
-      limit: Math.min(100, Math.max(1, limit)) // Limit to 100 max
+      limit: Math.min(1000, Math.max(1, limit)) // Allow up to 1000 products per page // Limit to 100 max
     });
     
     if (searchQuery && searchQuery.trim()) {
@@ -325,22 +325,31 @@ const fetchProducts = async (page = 1, limit = 20, searchQuery = "") => {
 
     const url = `${baseUrl}?${params.toString()}`;
     
-    console.time(`API_Fetch_Products_${page}`);
+    // Use unique timer name with timestamp to avoid conflicts
+    const timerName = `API_Fetch_Products_${page}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.time(timerName);
     const res = await axios.get(url, { 
       headers,
       timeout: 30000 // 30 second timeout
     });
-    console.timeEnd(`API_Fetch_Products_${page}`);
+    console.timeEnd(timerName);
+
+    console.log("API Response:", res.data); // Debug log
 
     if (res.data.success) {
+      const products = res.data.data || [];
+      const pagination = res.data.pagination || {
+        total: 0,
+        page: page,
+        limit: limit,
+        totalPages: 0
+      };
+      
+      console.log(`Fetched ${products.length} products, Total: ${pagination.total}`); // Debug log
+      
       return {
-        products: res.data.data || [],
-        pagination: res.data.pagination || {
-          total: 0,
-          page: page,
-          limit: limit,
-          totalPages: 0
-        }
+        products: products,
+        pagination: pagination
       };
     } else {
       console.warn("API returned non-success:", res.data.message);
@@ -367,10 +376,15 @@ const fetchProducts = async (page = 1, limit = 20, searchQuery = "") => {
     if (err.code === 'ECONNABORTED') {
       errorMessage = "Request timeout. Please try again.";
     } else if (err.response?.status === 401) {
-      errorMessage = "Session expired. Please login again.";
-      // Optional: Clear token and redirect to login
-      localStorage.removeItem("token");
-      window.location.href = '/login';
+      // Check if it's Google API auth error or session error
+      const errorData = err.response?.data;
+      if (errorData?.error?.includes("Google Merchant API") || errorData?.error?.includes("Authentication failed")) {
+        errorMessage = "Google API authentication failed. Please check service account permissions.";
+      } else {
+        errorMessage = "Session expired. Please login again.";
+        localStorage.removeItem("token");
+        window.location.href = '/login';
+      }
     } else if (err.response?.status === 404) {
       errorMessage = "Products endpoint not found.";
     } else if (err.response?.status >= 500) {
