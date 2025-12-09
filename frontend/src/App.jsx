@@ -7,22 +7,36 @@ import AdminLayout from "./component/AdminLayout.jsx";
 import ProtectedRoute from "./component/ProtectedRoute.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
-// Component to handle redirection after login
+// Handles Google OAuth redirect token and automatic login
 const AuthRedirectHandler = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, loginWithToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!loading && user && location.pathname === "/") {
-      // User is logged in and trying to access the login page
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (token) {
+      // Log in user with token from Google OAuth
+      loginWithToken(token).then(res => {
+        if (res.success) {
+          // Remove token from URL
+          window.history.replaceState({}, document.title, "/admin");
+        } else {
+          console.error("Token login failed:", res.message);
+        }
+      });
+    } else if (!loading && user && location.pathname === "/") {
+      // Redirect logged-in user away from login page
       navigate("/admin", { replace: true });
     }
-  }, [user, loading, location.pathname, navigate]);
+  }, [user, loading, location.pathname, navigate, loginWithToken]);
 
   return null;
 };
 
+// Public route wrapper for login page
 const PublicRoute = ({ children }) => {
   const { loading, isAuthenticated } = useAuth();
 
@@ -43,13 +57,10 @@ const PublicRoute = ({ children }) => {
     return <Navigate to="/admin" replace />;
   }
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return children;
 };
 
+// Handles invalid or unknown routes
 const InvalidRouteHandler = () => {
   const { loading, isAuthenticated } = useAuth();
 
@@ -76,6 +87,7 @@ function App() {
     <Router>
       <AuthRedirectHandler />
       <Routes>
+        {/* Login / Public route */}
         <Route 
           path="/" 
           element={
@@ -84,7 +96,8 @@ function App() {
             </PublicRoute>
           } 
         />
-        
+
+        {/* Protected Admin routes */}
         <Route 
           path="/admin" 
           element={
@@ -98,7 +111,8 @@ function App() {
           <Route path="feeddata" element={<FeedData />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
-        
+
+        {/* Catch-all route */}
         <Route path="*" element={<InvalidRouteHandler />} />
       </Routes>
     </Router>
