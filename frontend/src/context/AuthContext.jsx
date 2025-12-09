@@ -99,23 +99,32 @@ export const AuthProvider = ({ children }) => {
     if (!accountToSwitch) return false;
 
     try {
+      // Immediately update UI (optimistic update)
+      setSelectedAccount(accountToSwitch);
+      updateUserSelectedAccount(accountToSwitch.merchantId);
+
+      // Then sync with backend
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token");
 
       const res = await axios.post(
         `${API}/api/auth/select-account`,
-        { merchantId: accountId },
+        { merchantId: accountToSwitch.merchantId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (res.data.success) {
-        setSelectedAccount(accountToSwitch);
-        updateUserSelectedAccount(accountToSwitch.merchantId);
-        return true;
+      if (res.data.success && res.data.selectedAccount) {
+        // Update with fresh data from server
+        const updatedAccount = {
+          ...accountToSwitch,
+          ...res.data.selectedAccount
+        };
+        setSelectedAccount(updatedAccount);
       }
-      return false;
+      return true;
     } catch (err) {
       console.error("Error switching account:", err);
+      // Revert on error
       return false;
     }
   };
@@ -152,10 +161,16 @@ export const AuthProvider = ({ children }) => {
     verifyUser();
   }, []);
 
-  // Load accounts when user changes
+  // Load accounts when user logs in
   useEffect(() => {
-    if (user && !loading) syncAccounts();
-  }, [user, loading]);
+    if (user && !loading) {
+      // Only sync accounts if selectedAccount is not set
+      // This prevents overwriting manual account switches
+      if (!selectedAccount) {
+        syncAccounts();
+      }
+    }
+  }, [user, loading, selectedAccount]);
 
   // -------------------------------
   // AUTH FUNCTIONS
@@ -207,6 +222,10 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: err.message };
     }
   };
+
+  
+
+
 
   const logout = () => clearSession();
 

@@ -106,33 +106,44 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
 
         console.log(`Fetching PRODUCTS for merchant: ${merchantId}`);
 
-        // List all products
         const response = await content.products.list({
             merchantId: merchantId,
-            maxResults: 250, // Google API max
+            maxResults: 250,
         });
 
         const products = response.data.resources || [];
 
         console.log(`Fetched ${products.length} products from merchant ${merchantId}`);
 
-        return products.map(p => ({
-            id: p.id,
-            title: p.title,
-            link: p.link,
-            imageLink: p.imageLink,
-            price: p.price,
-            salePrice: p.salePrice,
-            availability: p.availability,
-            brand: p.brand,
-            gtin: p.gtin,
-            condition: p.condition,
-            productType: p.productType,
-            customLabel0: p.customLabel0,
-            channel: p.channel,
-            offerId: p.offerId,
-            raw: p
-        }));
+        return products.map(p => {
+            // Default status approved
+            let approvalStatus = "approved";
+
+            // If there are item level issues, mark disapproved or pending
+            if (p.itemLevelIssues && p.itemLevelIssues.length > 0) {
+                const disapprovedIssues = p.itemLevelIssues.filter(issue => issue.severity === "critical");
+                approvalStatus = disapprovedIssues.length > 0 ? "disapproved" : "pending";
+            }
+
+            return {
+                id: p.id,
+                title: p.title,
+                link: p.link,
+                imageLink: p.imageLink,
+                price: p.price,
+                salePrice: p.salePrice,
+                availability: p.availability,
+                brand: p.brand,
+                gtin: p.gtin,
+                condition: p.condition,
+                productType: p.productType,
+                customLabel0: p.customLabel0,
+                channel: p.channel,
+                offerId: p.offerId,
+                approvalStatus, // ← yaha status add kiya
+                raw: p
+            };
+        });
     } catch (error) {
         console.error("Error fetching products:", error.message);
         return [];

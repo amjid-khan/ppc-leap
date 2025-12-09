@@ -2,29 +2,22 @@ import User from "../models/User.js";
 import { fetchGoogleMerchantProducts } from "../services/googleMerchantService.js";
 
 export const getMerchantProducts = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50; // 50 per page
+    const offset = (page - 1) * limit;
 
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
+    const user = await User.findById(req.user.id);
+    const merchantId = user.selectedAccount;
 
-        const merchantId = user.selectedAccount;
+    const allProducts = await fetchGoogleMerchantProducts(user, merchantId);
 
-        if (!merchantId) {
-            return res.status(400).json({ error: "No merchant account selected" });
-        }
+    const paginatedProducts = allProducts.slice(offset, offset + limit);
 
-        const products = await fetchGoogleMerchantProducts(user, merchantId);
-
-        return res.json({
-            merchantId,
-            total: products.length,
-            products
-        });
-
-    } catch (error) {
-        console.error("Error fetching products:", error.message);
-        res.status(500).json({ error: "Failed to fetch products" });
-    }
+    return res.json({
+        merchantId,
+        page,
+        limit,
+        total: allProducts.length,
+        products: paginatedProducts
+    });
 };

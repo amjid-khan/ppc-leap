@@ -3,7 +3,7 @@ import React from 'react'
 const FeedData = () => {
   return (
     <div>
-      FeedData Component
+      FeedData
     </div>
   )
 }

@@ -90,9 +90,9 @@ export const selectMerchantAccount = async (req, res) => {
         }
 
         // Verify account exists in user's accounts
-        const accountExists = user.googleMerchantAccounts.some(acc => acc.id === merchantId);
+        const selectedAcc = user.googleMerchantAccounts.find(acc => acc.id === merchantId);
 
-        if (!accountExists) {
+        if (!selectedAcc) {
             return res.status(400).json({ error: "Merchant account not found" });
         }
 
@@ -100,8 +100,16 @@ export const selectMerchantAccount = async (req, res) => {
         await user.save();
 
         res.json({
+            success: true,
             message: "Account selected successfully",
-            selectedAccount: user.selectedAccount
+            selectedAccount: {
+                merchantId: selectedAcc.id,
+                accountName: selectedAcc.name,
+                websiteUrl: selectedAcc.websiteUrl,
+                email: selectedAcc.email,
+                businessType: selectedAcc.businessType,
+                status: selectedAcc.status
+            }
         });
     } catch (error) {
         console.error("Error selecting merchant account:", error.message);
