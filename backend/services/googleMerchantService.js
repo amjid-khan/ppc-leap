@@ -104,25 +104,51 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
 
         const content = google.content({ version: "v2.1", auth });
 
-        console.log(`Fetching PRODUCTS for merchant: ${merchantId}`);
+        console.log(`Fetching ALL PRODUCTS for merchant: ${merchantId}`);
 
-        const response = await content.products.list({
-            merchantId: merchantId,
-            maxResults: 250,
-        });
+        const allProducts = [];
+        let pageToken = undefined;
 
-        const products = response.data.resources || [];
+        // Fetch all pages
+        do {
+            try {
+                const requestParams = {
+                    merchantId: merchantId,
+                    maxResults: 250,
+                };
 
-        console.log(`Fetched ${products.length} products from merchant ${merchantId}`);
+                if (pageToken) {
+                    requestParams.pageToken = pageToken;
+                }
 
-        return products.map(p => {
-            // Default status approved
-            let approvalStatus = "approved";
+                const response = await content.products.list(requestParams);
+                const products = response.data.resources || [];
 
-            // If there are item level issues, mark disapproved or pending
-            if (p.itemLevelIssues && p.itemLevelIssues.length > 0) {
-                const disapprovedIssues = p.itemLevelIssues.filter(issue => issue.severity === "critical");
-                approvalStatus = disapprovedIssues.length > 0 ? "disapproved" : "pending";
+                console.log(`Fetched batch: ${products.length} products`);
+                allProducts.push(...products);
+
+                pageToken = response.data.nextPageToken;
+            } catch (pageError) {
+                console.error(`Page error: ${pageError.message}`);
+                break;
+            }
+        } while (pageToken);
+
+        console.log(`Total ${allProducts.length} products fetched from merchant ${merchantId}`);
+
+        return allProducts.map(p => {
+            // Prefer explicit approvalStatus from the API when provided;
+            // otherwise infer from itemLevelIssues (critical -> disapproved, others -> pending, none -> approved)
+            let approvalStatus = null;
+            if (p.approvalStatus) {
+                approvalStatus = String(p.approvalStatus).toLowerCase();
+            } else {
+                // Default to approved unless issues found
+                approvalStatus = "approved";
+                if (p.itemLevelIssues && p.itemLevelIssues.length > 0) {
+                    const disapprovedIssues = p.itemLevelIssues.filter(issue => issue.severity === "critical");
+                    approvalStatus = disapprovedIssues.length > 0 ? "disapproved" : "pending";
+                }
             }
 
             return {
@@ -140,7 +166,7 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
                 customLabel0: p.customLabel0,
                 channel: p.channel,
                 offerId: p.offerId,
-                approvalStatus, // ← yaha status add kiya
+                approvalStatus,
                 raw: p
             };
         });

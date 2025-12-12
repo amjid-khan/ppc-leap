@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -9,6 +9,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  
+  // Product caching
+  const productsCache = useRef(null);
+  const productsCacheTime = useRef(null);
 
   // -------------------------------
   // HELPER FUNCTIONS
@@ -99,6 +103,10 @@ export const AuthProvider = ({ children }) => {
     if (!accountToSwitch) return false;
 
     try {
+      // Clear product cache when switching accounts
+      productsCache.current = null;
+      productsCacheTime.current = null;
+      
       // Immediately update UI (optimistic update)
       setSelectedAccount(accountToSwitch);
       updateUserSelectedAccount(accountToSwitch.merchantId);
@@ -227,6 +235,55 @@ export const AuthProvider = ({ children }) => {
 
 
 
+  const getProducts = async (page = 1, limit = 50) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token");
+
+      // Check cache (valid for 5 minutes)
+      const now = Date.now();
+      if (productsCache.current && productsCacheTime.current && (now - productsCacheTime.current) < 5 * 60 * 1000) {
+        console.log("Using cached products");
+        return {
+          success: true,
+          products: productsCache.current,
+          total: productsCache.current.length,
+          page: 1,
+          limit: productsCache.current.length,
+          fromCache: true,
+        };
+      }
+
+      const res = await axios.get(`${API}/api/merchant/products`, {
+        params: { page, limit },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const products = res.data.products || [];
+      
+      // Cache the products
+      productsCache.current = products;
+      productsCacheTime.current = Date.now();
+
+      return {
+        success: true,
+        products: products,
+        total: products.length,
+        page: 1,
+        limit: products.length,
+        fromCache: false,
+      };
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      return {
+        success: false,
+        products: [],
+        total: 0,
+        message: err.message,
+      };
+    }
+  };
+
   const logout = () => clearSession();
 
   const isAuthenticated = () => !!user && !!localStorage.getItem("token");
@@ -245,6 +302,7 @@ export const AuthProvider = ({ children }) => {
         switchAccount,
         loginWithToken,
         isAuthenticated,
+        getProducts,
       }}
     >
       {children}
@@ -252,4 +310,24 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    console.error("useAuth must be used within AuthProvider");
+    return {
+      user: null,
+      loading: true,
+      accounts: [],
+      selectedAccount: null,
+      register: async () => ({ success: false }),
+      login: async () => ({ success: false }),
+      logout: () => {},
+      syncAccounts: async () => {},
+      switchAccount: async () => false,
+      loginWithToken: async () => ({ success: false }),
+      isAuthenticated: () => false,
+      getProducts: async () => ({ success: false, products: [] }),
+    };
+  }
+  return context;
+};

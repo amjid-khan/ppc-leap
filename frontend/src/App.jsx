@@ -82,7 +82,8 @@ const InvalidRouteHandler = () => {
     : <Navigate to="/" replace />;
 };
 
-function App() {
+// Router wrapper component
+const AppRoutes = () => {
   return (
     <Router>
       <AuthRedirectHandler />
@@ -117,6 +118,10 @@ function App() {
       </Routes>
     </Router>
   );
+};
+
+function App() {
+  return <AppRoutes />;
 }
 
 export default App;
