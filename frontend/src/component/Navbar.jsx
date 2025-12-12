@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Search, Moon, Sun, Globe } from "lucide-react";
 
 const Navbar = () => {
   const { user, logout, accounts, selectedAccount, switchAccount } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const dropdownRef = useRef();
@@ -13,7 +15,6 @@ const Navbar = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [showAccountManagement, setShowAccountManagement] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,7 +46,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-300 flex items-center px-6 justify-between z-50 relative">
+    <header className="h-16 bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700 flex items-center px-6 justify-between z-50 relative transition-colors duration-300">
       {/* LEFT: LOGO + TITLE */}
       <div className="flex items-center gap-2">
         <img
@@ -53,8 +54,8 @@ const Navbar = () => {
           alt="Logo"
           className="w-20 h-auto"
         />
-        <h2 className="text-md md:text-xl font-bold whitespace-nowrap">
-          <span className="text-green-900">Leap</span> Feed Optimizer
+        <h2 className="text-md md:text-xl font-bold whitespace-nowrap dark:text-white">
+          <span className="text-green-900 dark:text-green-400">Leap</span> Feed Optimizer
         </h2>
       </div>
 
@@ -67,7 +68,7 @@ const Navbar = () => {
         </div> */}
 
         {/* DIVIDER */}
-        <div className="w-px h-6 bg-gray-300"></div>
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
 
         {/* 🌐 LANGUAGE ICON */}
         {/* <div className="cursor-pointer text-gray-600 hover:text-blue-600 transition-colors">
@@ -75,12 +76,12 @@ const Navbar = () => {
         </div> */}
 
         {/* DIVIDER */}
-        <div className="w-px h-6 bg-gray-300"></div>
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
 
         {/* 🌙 THEME TOGGLE ICON */}
         <div 
-          className="cursor-pointer text-gray-600 hover:text-amber-500 transition-colors"
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="cursor-pointer text-gray-600 hover:text-amber-500 transition-colors dark:text-gray-400 dark:hover:text-amber-400"
+          onClick={toggleTheme}
         >
           {isDarkMode ? (
             <Sun size={20} strokeWidth={2} />
@@ -90,18 +91,18 @@ const Navbar = () => {
         </div>
 
         {/* DIVIDER */}
-        <div className="w-px h-6 bg-gray-300"></div>
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
 
         {/* ACCOUNT DROPDOWN */}
         <div className="relative" ref={dropdownRef}>
           <div
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="cursor-pointer flex flex-col items-start px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="cursor-pointer flex flex-col items-start px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-300"
           >
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-start">
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-gray-800 text-sm">
+                  <span className="font-medium text-gray-800 dark:text-white text-sm">
                     {selectedAccount?.accountName || "Select Account"}
                   </span>
 
@@ -122,7 +123,7 @@ const Navbar = () => {
                   </svg>
                 </div>
 
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   Merchant ID: {selectedAccount?.merchantId || ""}
                 </span>
               </div>
@@ -131,34 +132,34 @@ const Navbar = () => {
 
           {/* DROPDOWN MENU */}
           <div
-            className={`absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden transform transition-all duration-200 z-50 ${
+            className={`absolute right-0 mt-2 w-96 bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all duration-200 z-50 ${
               dropdownOpen
                 ? "opacity-100 scale-100 translate-y-0"
                 : "opacity-0 scale-95 pointer-events-none -translate-y-2"
             }`}
           >
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                   {selectedAccount?.accountName || "Select Account"}
                 </h3>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Merchant Centre ID: {selectedAccount?.merchantId || ""}
                 </p>
               </div>
 
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-gray-600 dark:text-gray-300">
                 <div>Comparison Shopping Service</div>
-                <div className="text-blue-600 font-medium">
+                <div className="text-blue-600 dark:text-blue-400 font-medium">
                   Google Shopping (google.com/shopping)
                 </div>
               </div>
             </div>
 
-            <div className="p-3 border-b border-gray-200">
+            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
               <div className="relative">
                 <svg
-                  className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -173,7 +174,7 @@ const Navbar = () => {
                 <input
                   type="text"
                   placeholder="Search for business"
-                  className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -188,24 +189,24 @@ const Navbar = () => {
                         await switchAccount(acc._id);
                         setDropdownOpen(false);
                       }}
-                      className={`flex items-center p-3 hover:bg-gray-50 cursor-pointer transition ${
+                      className={`flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200 ${
                         selectedAccount?._id === acc._id
-                          ? "bg-blue-50 border-r-2 border-blue-500"
+                          ? "bg-blue-50 dark:bg-blue-900 border-r-2 border-blue-500"
                           : ""
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {acc.accountName}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           Merchant ID: {acc.merchantId}
                         </p>
                       </div>
 
                       {selectedAccount?._id === acc._id && (
                         <svg
-                          className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2"
+                          className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 ml-2"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -223,9 +224,9 @@ const Navbar = () => {
                 </>
               ) : (
                 <div className="p-6 text-center">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
                     <svg
-                      className="w-6 h-6 text-gray-400"
+                      className="w-6 h-6 text-gray-400 dark:text-gray-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -238,18 +239,18 @@ const Navbar = () => {
                       />
                     </svg>
                   </div>
-                  <p className="text-gray-500 text-sm mb-3">No accounts found</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">No accounts found</p>
                 </div>
               )}
             </div>
 
-            <div className="border-t border-gray-200 bg-gray-50">
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               <div
                 onClick={() => {
                   setDropdownOpen(false);
                   setShowAccountManagement(true);
                 }}
-                className="flex items-center justify-center p-3 hover:bg-gray-200 cursor-pointer transition"
+                className="flex items-center justify-center p-3 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200"
               >
                 <span className="text-sm text-gray-700 font-medium">
                   Manage accounts
@@ -260,7 +261,7 @@ const Navbar = () => {
         </div>
 
         {/* DIVIDER */}
-        <div className="w-px h-6 bg-gray-300"></div>
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
 
         {/* PROFILE SECTION */}
         <div className="relative" ref={profileDropdownRef}>
@@ -272,25 +273,25 @@ const Navbar = () => {
               <img
                 src={user.image}
                 alt="Profile"
-                className="w-9 h-9 rounded-full border-2 border-gray-300 object-cover hover:border-gray-400 transition-colors"
+                className="w-9 h-9 rounded-full border-2 border-gray-300 dark:border-gray-600 object-cover hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200"
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold border-2 border-gray-300 hover:border-gray-400 transition-colors">
+              <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
                 {avatarLetter}
               </div>
             )}
           </div>
 
           <div
-            className={`absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden transform transition-all duration-200 z-50 ${
+            className={`absolute right-0 mt-2 w-80 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all duration-200 z-50 ${
               profileDropdownOpen
                 ? "opacity-100 scale-100 translate-y-0"
                 : "opacity-0 scale-95 pointer-events-none -translate-y-2"
             }`}
           >
-            <div className="p-4 border-b border-gray-200 text-center">
-              <p className="text-sm text-gray-500 truncate mb-2">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate mb-2">
                 {user?.email || ""}
               </p>
 
@@ -309,20 +310,20 @@ const Navbar = () => {
                 )}
               </div>
 
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {user?.name || "User"}
               </p>
             </div>
 
-            <div className="p-1 border-b border-gray-200">
+            <div className="p-1 border-b border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => {
                   setProfileDropdownOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors text-left"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors duration-200 text-left"
               >
                 <svg
-                  className="w-5 h-5 text-gray-500"
+                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -347,10 +348,10 @@ const Navbar = () => {
             <div className="p-1">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors text-left"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors duration-200 text-left"
               >
                 <svg
-                  className="w-5 h-5 text-gray-500"
+                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -366,12 +367,12 @@ const Navbar = () => {
               </button>
             </div>
 
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               <div className="flex justify-center gap-4 text-xs">
-                <a href="#" className="text-gray-500 hover:text-gray-700 transition-colors">
+                <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                   Privacy Policy
                 </a>
-                <a href="#" className="text-gray-500 hover:text-gray-700 transition-colors">
+                <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                   Terms of Service
                 </a>
               </div>

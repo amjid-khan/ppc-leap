@@ -52,7 +52,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <aside className="w-64 bg-white h-screen flex flex-col border-r border-slate-200 shadow-sm">
+      <aside className="w-64 bg-white dark:bg-gray-900 h-screen flex flex-col border-r border-slate-200 dark:border-gray-700 shadow-sm">
       
 
         {/* Main Navigation */}
@@ -71,24 +71,24 @@ const Sidebar = () => {
                   className={`
                     group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${isActive 
-                      ? "bg-blue-50 text-green-600 border border-blue-100" 
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
+                      ? "bg-blue-50 dark:bg-blue-900 text-green-600 dark:text-green-400 border border-blue-100 dark:border-blue-800" 
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent"
                     }
                   `}
                 >
                   <div className={`
                     absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full transition-all duration-200
                     ${isActive 
-                      ? "bg-green-600 opacity-100" 
-                      : "bg-slate-300 opacity-0 group-hover:opacity-100"
+                      ? "bg-green-600 dark:bg-green-400 opacity-100" 
+                      : "bg-slate-300 dark:bg-gray-600 opacity-0 group-hover:opacity-100"
                     }
                   `} />
                   
                   <Icon
                     className={`w-5 h-5 transition-colors duration-200 ${
                       isActive 
-                        ? "text-green-600" 
-                        : "text-slate-400 group-hover:text-slate-600"
+                        ? "text-green-600 dark:text-green-400" 
+                        : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
                     }`}
                   />
                   <span className="font-medium text-sm">{item.label}</span>

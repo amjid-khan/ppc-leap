@@ -155,20 +155,20 @@ const FeedData = () => {
     <div className="">
       {/* Header Card - Consistent with Dashboard */}
 <div className="mb-6 ">
-  <div className="bg-white rounded-lg border border-gray-300 p-3">
+  <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 p-3">
     <div className="flex justify-between items-start ">
 
       {/* Left Section */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <div className="bg-gray-100 p-2.5 rounded-lg">
-            <Database className="text-black" size={26} />
+          <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
+            <Database className="text-black dark:text-white" size={26} />
           </div>
 
-          <h1 className="text-3xl font-bold text-black">FeedData</h1>
+          <h1 className="text-3xl font-bold text-black dark:text-white">FeedData</h1>
         </div>
 
-        <p className="text-gray-600 mt-1 text-base">
+        <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
           Manage and review your product feed data
         </p>
       </div>
@@ -180,7 +180,7 @@ const FeedData = () => {
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-gray-700"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <X size={16} />
           </button>
@@ -194,7 +194,7 @@ const FeedData = () => {
               setStatusFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500"
+            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500"
           >
             <option value="approved">Approved</option>
             <option value="disapproved">Disapproved</option>
@@ -213,7 +213,7 @@ const FeedData = () => {
           <input
             type="text"
             placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -233,44 +233,44 @@ const FeedData = () => {
 
 
       {/* Table section */}
-      <div className="bg-white rounded-lg shadow overflow-hidden mb-24">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden mb-24">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-100 dark:bg-gray-800">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-32">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-32">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-40">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-40">
                   ID
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-32">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-32">
                   Image
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-96">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-96">
                   Title
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-96">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-96">
                   Description
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-48">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-48">
                   Brand
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-32">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-32">
                   Feed Label
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-48">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-48">
                   Product Type
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-64">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-64">
                   Google Product Category
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider w-40">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-40">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <>
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -279,7 +279,7 @@ const FeedData = () => {
                 </>
               ) : currentData.length > 0 ? (
                 currentData.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50 group">
+                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 group">
                     <td className="px-4 py-3">
                       <div className="flex items-center">
                         {item.status === "approved" ? (
@@ -302,7 +302,7 @@ const FeedData = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900 w-24">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white w-24">
                         <div className="text-xs leading-tight break-all whitespace-normal">
                           {item.displayId}
                         </div>
@@ -314,7 +314,7 @@ const FeedData = () => {
                           <img
                             src={item.imageLink}
                             alt={item.title}
-                            className="h-20 w-20 object-cover rounded border border-gray-200 cursor-pointer hover:border-blue-500 transition-colors"
+                            className="h-20 w-20 object-cover rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-500 transition-colors"
                             onClick={() => handleImageClick(item.imageLink)}
                             onError={(e) => {
                               e.target.src =
@@ -322,25 +322,25 @@ const FeedData = () => {
                             }}
                           />
                         ) : (
-                          <div className="h-20 w-20 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500 text-center px-1">
+                          <div className="h-20 w-20 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 text-center px-1">
                             No Image
                           </div>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-2">
-                      <div className="text-sm w-40 text-gray-900 line-clamp-3">
+                      <div className="text-sm w-40 text-gray-900 dark:text-white line-clamp-3">
                         {item.title}
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-between">
-                        <div className="text-sm w-56 text-gray-900 line-clamp-4 pr-2 flex-1">
+                        <div className="text-sm w-56 text-gray-900 dark:text-white line-clamp-4 pr-2 flex-1">
                           {item.description}
                         </div>
                         <button
                           onClick={() => handleViewDescription(item)}
-                          className="text-gray-500 hover:text-blue-600 ml-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center h-8 w-8 rounded-full hover:bg-gray-100"
+                          className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 ml-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
                           title="View full description"
                         >
                           <Eye size={18} />
@@ -348,20 +348,20 @@ const FeedData = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900">{item.brand}</div>
+                      <div className="text-sm text-gray-900 dark:text-white">{item.brand}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {item.feedLabel}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-gray-900 dark:text-white">
                         {item.productType}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900 line-clamp-3">
+                      <div className="text-sm text-gray-900 dark:text-white line-clamp-3">
                         {item.googleProductCategory}
                       </div>
                     </td>
@@ -380,9 +380,9 @@ const FeedData = () => {
               ) : (
                 <tr>
                   <td colSpan="10" className="px-4 py-16">
-                    <div className="flex flex-col items-center justify-center text-gray-500">
-                      <SearchX size={64} className="text-gray-300 mb-4" />
-                      <p className="text-lg font-medium text-gray-700 mb-1">
+                    <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                      <SearchX size={64} className="text-gray-300 dark:text-gray-700 mb-4" />
+                      <p className="text-lg font-medium text-gray-700 dark:text-white mb-1">
                         No results found
                       </p>
                       {searchTerm && searchTerm.trim() !== "" && (
@@ -400,12 +400,12 @@ const FeedData = () => {
       </div>
 
       {/* Sticky pagination at bottom */}
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 py-4 px-6 shadow-lg">
+      <div className="fixed bottom-0 left-64 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-4 px-6 shadow-lg">
         <div className="flex flex-col md:flex-row items-center justify-end gap-6">
           {/* Results info */}
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
             {loading ? (
-              <span className="text-gray-500">Loading products...</span>
+              <span className="text-gray-500 dark:text-gray-400">Loading products...</span>
             ) : (
               <span>
                 <span className="font-medium">{startIndex}</span> to{" "}
@@ -417,11 +417,11 @@ const FeedData = () => {
 
           {/* Rows per page selector */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">Show rows:</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Show rows:</span>
             <select
               value={itemsPerPage}
               onChange={handleItemsPerPageChange}
-              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="50">50</option>
               <option value="100">100</option>
@@ -435,7 +435,7 @@ const FeedData = () => {
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
-              className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="p-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
               title="First page"
             >
               <ChevronsLeft size={18} />
@@ -444,7 +444,7 @@ const FeedData = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="p-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
               title="Previous page"
             >
               <ChevronLeft size={18} />
@@ -453,7 +453,7 @@ const FeedData = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="p-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
               title="Next page"
             >
               <ChevronRight size={18} />
@@ -462,7 +462,7 @@ const FeedData = () => {
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="p-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
               title="Last page"
             >
               <ChevronsRight size={18} />
@@ -478,37 +478,37 @@ const FeedData = () => {
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                   Description Details
                 </h2>
                 <button
                   onClick={closeModal}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
                 >
                   &times;
                 </button>
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-900">ID</h3>
-                <p className="font-sm text-gray-700">{selectedItem.id}</p>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">ID</h3>
+                <p className="font-sm text-gray-700 dark:text-gray-300">{selectedItem.id}</p>
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-900">Title</h3>
-                <p className="text-gray-700">{selectedItem.title}</p>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Title</h3>
+                <p className="text-gray-700 dark:text-gray-300">{selectedItem.title}</p>
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-900">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                   Full Description
                 </h3>
-                <p className="text-gray-700 mt-1 whitespace-pre-line">
+                <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-line">
                   {selectedItem.description}
                 </p>
               </div>

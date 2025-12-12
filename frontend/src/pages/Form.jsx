@@ -102,18 +102,18 @@ const Form = () => {
 
   if (processingGoogleToken) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 dark:from-gray-950 to-indigo-100 dark:to-gray-900">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-          <p className="mt-4 text-gray-600">Signing you in...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Signing you in...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-6xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-950 to-indigo-100 dark:to-gray-900 flex items-center justify-center p-4">
+      <div className="max-w-6xl w-full bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
 
         {/* Left Side - Text */}
         <div className="md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-8 md:p-12 flex flex-col justify-center">
@@ -127,9 +127,9 @@ const Form = () => {
                 : "Register to link your Google Merchant Center accounts and monitor real-time performance from a single dashboard."}
             </p>
             <div className="mt-8 flex items-center space-x-4">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-              <div className="w-3 h-3 bg-white/50 rounded-full"></div>
-              <div className="w-3 h-3 bg-white/30 rounded-full"></div>
+              <div className="w-3 h-3 bg-white dark:bg-gray-700 rounded-full"></div>
+              <div className="w-3 h-3 bg-white/50 dark:bg-gray-600/50 rounded-full"></div>
+              <div className="w-3 h-3 bg-white/30 dark:bg-gray-600/30 rounded-full"></div>
             </div>
           </div>
         </div>
@@ -138,17 +138,17 @@ const Form = () => {
         <div className="md:w-1/2 p-8 md:p-12 flex items-center justify-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800">
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
                 {isLoginForm ? "Welcome Back" : "Create Account"}
               </h2>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 {isLoginForm ? "Sign in to your account" : "Register to get started"}
               </p>
             </div>
 
             {error && (
               <div className={`${
-                !isLoginForm ? 'bg-red-50 border-red-200 text-red-700' : 'bg-red-50 border-red-200 text-red-600'
+                !isLoginForm ? 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400' : 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
               } border px-4 py-3 rounded-lg mb-6 text-center`}>
                 {error}
               </div>
@@ -157,7 +157,7 @@ const Form = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {!isLoginForm && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Full Name
                   </label>
                   <input
@@ -165,14 +165,14 @@ const Form = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                     required={!isLoginForm}
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Email Address
                 </label>
                 <input
@@ -180,13 +180,13 @@ const Form = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Password
                 </label>
                 <input
@@ -194,7 +194,7 @@ const Form = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                   required
                 />
               </div>
@@ -202,10 +202,10 @@ const Form = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 px-4 rounded-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 font-medium ${
+                className={`w-full py-3 px-4 rounded-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition duration-200 font-medium ${
                   loading
-                    ? "bg-blue-300 cursor-not-allowed text-white"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+                    ? "bg-blue-300 dark:bg-blue-700 cursor-not-allowed text-white"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-600 dark:to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-700"
                 }`}
               >
                 {loading ? "Processing..." : isLoginForm ? "Sign In" : "Create Account"}
@@ -215,17 +215,17 @@ const Form = () => {
             {/* Google Login */}
             <div className="mt-6">
               <div className="flex items-center mb-6">
-                <span className="flex-1 h-px bg-gray-200"></span>
-                <span className="px-4 text-sm text-gray-400 uppercase">or continue with</span>
-                <span className="flex-1 h-px bg-gray-200"></span>
+                <span className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></span>
+                <span className="px-4 text-sm text-gray-400 dark:text-gray-500 uppercase">or continue with</span>
+                <span className="flex-1 h-px bg-gray-200 dark:bg-gray-700"></span>
               </div>
 
               <button
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={googleLoading}
-                className={`w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium transition duration-200 ${
-                  googleLoading ? "bg-gray-100 cursor-not-allowed" : "hover:bg-gray-50"
+                className={`w-full flex items-center justify-center gap-3 border border-gray-300 dark:border-gray-600 rounded-lg py-3 px-4 text-gray-700 dark:text-gray-300 font-medium transition duration-200 ${
+                  googleLoading ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed" : "hover:bg-gray-50 dark:hover:bg-gray-800"
                 }`}
               >
                 {googleLoading ? (
@@ -244,11 +244,11 @@ const Form = () => {
             </div>
 
             <div className="mt-8 text-center">
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {isLoginForm ? "Don't have an account?" : "Already have an account?"}{" "}
                 <button
                   onClick={handleToggle}
-                  className="text-blue-600 hover:text-blue-700 font-medium transition duration-200 hover:underline"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition duration-200 hover:underline"
                 >
                   {isLoginForm ? "Sign Up" : "Sign In"}
                 </button>
