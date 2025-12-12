@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, AlertCircle, TrendingUp, Package, BarChart3 } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, TrendingUp, Package, BarChart3, ShoppingBag, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SkeletonCard, SkeletonDashboardStats, SkeletonDashboardTable } from '../component/SkeletonLoader';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const Dashboard = () => {
   const { getProducts, selectedAccount } = useAuth();
@@ -24,7 +24,6 @@ const Dashboard = () => {
         if (result.success && result.products) {
           const products = result.products;
 
-          // Calculate stats
           const total = products.length;
           const approved = products.filter(p => p.approvalStatus === 'approved').length;
           const disapproved = products.filter(p => p.approvalStatus === 'disapproved').length;
@@ -39,7 +38,6 @@ const Dashboard = () => {
             approvalRate: approvalRate,
           });
 
-          // Get recent products (last 5)
           setRecentProducts(products.slice(0, 5));
         }
       } catch (error) {
@@ -52,14 +50,13 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [getProducts, selectedAccount]);
 
-  // Generate mini chart data for each card
   const generateChartData = (value, trend = 'up') => {
-    const points = 8;
+    const points = 12;
     const data = [];
     for (let i = 0; i < points; i++) {
-      const base = value * 0.7;
-      const variance = value * 0.3;
-      const trendFactor = trend === 'up' ? (i / points) * 0.5 : -(i / points) * 0.3;
+      const base = value * 0.6;
+      const variance = value * 0.4;
+      const trendFactor = trend === 'up' ? (i / points) * 0.6 : -(i / points) * 0.4;
       data.push({
         value: base + (Math.random() * variance) + (value * trendFactor)
       });
@@ -67,37 +64,53 @@ const Dashboard = () => {
     return data;
   };
 
-  const StatCard = ({ icon: Icon, title, value, color, percentage, trend = 'up' }) => {
+  const StatCard = ({ icon: Icon, title, value, color, percentage, trend = 'up', iconBgLight, gradientId }) => {
     const chartData = generateChartData(typeof value === 'number' ? value : parseFloat(value) || 50, trend);
     
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-shadow duration-300 hover:shadow-md">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Icon size={18} style={{ color }} />
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`${iconBgLight} p-2.5 rounded-lg`}>
+                <Icon size={20} style={{ color }} />
+              </div>
               <p className="text-gray-600 text-sm font-medium">{title}</p>
             </div>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {typeof value === 'number' ? value.toLocaleString() : value}
+            </p>
             {percentage !== undefined && (
-              <p className="text-xs text-gray-500 mt-1">{percentage}% of total</p>
+              <div className="flex items-center gap-1 mt-2">
+                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                  trend === 'up' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                }`}>
+                  {trend === 'up' ? '↑' : '↓'} {percentage}%
+                </span>
+                <span className="text-xs text-gray-500">of total</span>
+              </div>
             )}
           </div>
         </div>
         
-        {/* Mini Curve Chart */}
-        <div className="h-12 -mb-2">
+        {/* Subtle Area Chart */}
+        <div className="h-14 -mb-2 mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <Line 
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.15}/>
+                  <stop offset="95%" stopColor="#ffffff" stopOpacity={0.05}/>
+                </linearGradient>
+              </defs>
+              <Area 
                 type="monotone" 
                 dataKey="value" 
-                stroke={color} 
+                stroke={color}
                 strokeWidth={2}
-                dot={false}
-                animationDuration={1000}
+                fill={`url(#${gradientId})`}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -105,22 +118,42 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6">
-      {/* Header */}
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Real-time overview of your product performance</p>
-        </div>
-        {/* {selectedAccount && (
-          <div className="text-right">
-            <p className="text-sm text-gray-600">Current Account</p>
-            <p className="text-lg font-semibold text-gray-900">{selectedAccount.accountName}</p>
+    <div className="">
+      {/* Premium Header */}
+   <div className="mb-6 relative">
+  <div className="bg-white rounded-lg border border-gray-300 p-3">
+    <div className="flex justify-between items-start">
+      
+      {/* Left Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-1">
+          <div className="bg-gray-100 p-2.5 rounded-lg">
+            <Activity className="text-black" size={26} />
           </div>
-        )} */}
+          <h1 className="text-3xl font-bold text-black">Dashboard</h1>
+        </div>
+        <p className="text-gray-600 mt-1 text-base">
+          Real-time overview of your product performance
+        </p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Right Section */}
+      {selectedAccount && (
+        <div className="text-right bg-gray-50 rounded-lg p-3 border border-gray-300">
+          <p className="text-lg font-bold text-gray-900">
+            {selectedAccount.accountName}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            ID: {selectedAccount.merchantId}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+
+      {/* Stats Grid - Simple White Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         {loading ? (
           <SkeletonDashboardStats />
@@ -131,6 +164,8 @@ const Dashboard = () => {
               title="Total Products"
               value={stats.totalProducts}
               color="#3B82F6"
+              iconBgLight="bg-blue-50"
+              gradientId="grad-blue"
               trend="up"
             />
             <StatCard
@@ -138,6 +173,8 @@ const Dashboard = () => {
               title="Approved"
               value={stats.approvedProducts}
               color="#10B981"
+              iconBgLight="bg-green-50"
+              gradientId="grad-green"
               percentage={stats.approvalRate}
               trend="up"
             />
@@ -146,6 +183,8 @@ const Dashboard = () => {
               title="Disapproved"
               value={stats.disapprovedProducts}
               color="#EF4444"
+              iconBgLight="bg-red-50"
+              gradientId="grad-red"
               percentage={stats.totalProducts > 0 ? Math.round((stats.disapprovedProducts / stats.totalProducts) * 100) : 0}
               trend="down"
             />
@@ -154,6 +193,8 @@ const Dashboard = () => {
               title="Pending"
               value={stats.pendingProducts}
               color="#F59E0B"
+              iconBgLight="bg-amber-50"
+              gradientId="grad-amber"
               percentage={stats.totalProducts > 0 ? Math.round((stats.pendingProducts / stats.totalProducts) * 100) : 0}
               trend="up"
             />
@@ -162,30 +203,37 @@ const Dashboard = () => {
               title="Approval Rate"
               value={`${stats.approvalRate}%`}
               color="#8B5CF6"
+              iconBgLight="bg-purple-50"
+              gradientId="grad-purple"
               trend="up"
             />
           </>
         )}
       </div>
 
-      {/* Status Breakdown Chart */}
+      {/* Status Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Status Distribution */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <BarChart3 size={20} />
-            Product Status Distribution
-          </h2>
-          <div className="space-y-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-indigo-50 p-2.5 rounded-lg">
+              <BarChart3 size={22} className="text-indigo-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Product Status Distribution</h2>
+          </div>
+          <div className="space-y-5">
             {/* Approved Bar */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Approved</span>
-                <span className="text-sm font-bold text-green-600">{stats.approvedProducts}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-sm font-medium text-gray-700">Approved</span>
+                </div>
+                <span className="text-base font-bold text-green-600">{stats.approvedProducts}</span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
+              <div className="w-full bg-gray-100 rounded-full h-2.5">
                 <div
-                  className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                  className="bg-green-500 h-2.5 rounded-full"
                   style={{ width: `${stats.totalProducts > 0 ? (stats.approvedProducts / stats.totalProducts) * 100 : 0}%` }}
                 ></div>
               </div>
@@ -194,12 +242,15 @@ const Dashboard = () => {
             {/* Disapproved Bar */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Disapproved</span>
-                <span className="text-sm font-bold text-red-600">{stats.disapprovedProducts}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-sm font-medium text-gray-700">Disapproved</span>
+                </div>
+                <span className="text-base font-bold text-red-600">{stats.disapprovedProducts}</span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
+              <div className="w-full bg-gray-100 rounded-full h-2.5">
                 <div
-                  className="bg-red-500 h-2 rounded-full transition-all duration-500"
+                  className="bg-red-500 h-2.5 rounded-full"
                   style={{ width: `${stats.totalProducts > 0 ? (stats.disapprovedProducts / stats.totalProducts) * 100 : 0}%` }}
                 ></div>
               </div>
@@ -208,12 +259,15 @@ const Dashboard = () => {
             {/* Pending Bar */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Pending</span>
-                <span className="text-sm font-bold text-amber-600">{stats.pendingProducts}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                  <span className="text-sm font-medium text-gray-700">Pending</span>
+                </div>
+                <span className="text-base font-bold text-amber-600">{stats.pendingProducts}</span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
+              <div className="w-full bg-gray-100 rounded-full h-2.5">
                 <div
-                  className="bg-amber-500 h-2 rounded-full transition-all duration-500"
+                  className="bg-amber-500 h-2.5 rounded-full"
                   style={{ width: `${stats.totalProducts > 0 ? (stats.pendingProducts / stats.totalProducts) * 100 : 0}%` }}
                 ></div>
               </div>
@@ -221,29 +275,40 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-6">Quick Stats</h2>
+        {/* Quick Stats - Light Colors */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-blue-50 p-2.5 rounded-lg">
+              <ShoppingBag size={22} className="text-blue-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Quick Stats</h2>
+          </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
+            <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-100">
               <div className="flex items-center gap-3">
-                <CheckCircle className="text-green-600" size={24} />
+                <div className="bg-green-100 p-2.5 rounded-lg">
+                  <CheckCircle className="text-green-600" size={22} />
+                </div>
                 <span className="text-gray-700 font-medium">Approved Products</span>
               </div>
               <span className="text-2xl font-bold text-green-600">{stats.approvedProducts.toLocaleString()}</span>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
               <div className="flex items-center gap-3">
-                <XCircle className="text-red-600" size={24} />
+                <div className="bg-red-100 p-2.5 rounded-lg">
+                  <XCircle className="text-red-600" size={22} />
+                </div>
                 <span className="text-gray-700 font-medium">Disapproved Products</span>
               </div>
               <span className="text-2xl font-bold text-red-600">{stats.disapprovedProducts.toLocaleString()}</span>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-amber-50 rounded-lg border border-amber-100">
+            <div className="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-100">
               <div className="flex items-center gap-3">
-                <AlertCircle className="text-amber-600" size={24} />
+                <div className="bg-amber-100 p-2.5 rounded-lg">
+                  <AlertCircle className="text-amber-600" size={22} />
+                </div>
                 <span className="text-gray-700 font-medium">Pending Review</span>
               </div>
               <span className="text-2xl font-bold text-amber-600">{stats.pendingProducts.toLocaleString()}</span>
@@ -252,48 +317,53 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Products */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">Recent Products</h2>
+      {/* Recent Products Table - Light Colors */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-gray-50 p-6 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2.5 rounded-lg">
+              <Package size={22} className="text-blue-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Recent Products</h2>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Brand</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Brand</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <SkeletonDashboardTable />
               ) : (
                 recentProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
+                  <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-900 max-w-md truncate">{product.title}</td>
                     <td className="px-6 py-4 text-sm">
                       <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${
                           product.approvalStatus === 'approved'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-green-100 text-green-700 border border-green-200'
                             : product.approvalStatus === 'disapproved'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-amber-100 text-amber-800'
+                            ? 'bg-red-100 text-red-700 border border-red-200'
+                            : 'bg-amber-100 text-amber-700 border border-amber-200'
                         }`}
                       >
-                        {product.approvalStatus === 'approved' && <CheckCircle size={14} />}
-                        {product.approvalStatus === 'disapproved' && <XCircle size={14} />}
-                        {product.approvalStatus === 'pending' && <AlertCircle size={14} />}
+                        {product.approvalStatus === 'approved' && <CheckCircle size={13} />}
+                        {product.approvalStatus === 'disapproved' && <XCircle size={13} />}
+                        {product.approvalStatus === 'pending' && <AlertCircle size={13} />}
                         {product.approvalStatus.charAt(0).toUpperCase() + product.approvalStatus.slice(1)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                       {product.price ? `${product.price.currency} ${product.price.value}` : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{product.brand || 'N/A'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{product.brand || 'N/A'}</td>
                   </tr>
                 ))
               )}
