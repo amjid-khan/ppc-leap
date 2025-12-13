@@ -246,7 +246,7 @@ const Dashboard = () => {
                   <div className="w-3 h-3 rounded-full bg-red-500"></div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Disapproved</span>
                 </div>
-                <span className="text-base font-bold text-red-600 dark:text-red-400">{stats.disapprovedProducts}</span>
+                <span className="text-base font-bold text-red-500 dark:text-red-400">{stats.disapprovedProducts}</span>
               </div>
               <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5">
                 <div

@@ -1,12 +1,12 @@
 import React from "react";
-import { Key } from "lucide-react";
+import { Key, Plus } from "lucide-react";
 
 const Keywords = () => {
   return (
+    // premium card section
     <div className="mb-6">
       <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 p-3">
-        <div className="flex items-center">
-
+        <div className="flex items-center justify-between">
           {/* Left Section */}
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -24,6 +24,11 @@ const Keywords = () => {
             </p>
           </div>
 
+          {/* Right Section - Add Keyword Button */}
+          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+            <Plus size={16} />
+            Add Keyword
+          </button>
         </div>
       </div>
     </div>

@@ -10,15 +10,14 @@ export const AuthProvider = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isAccountSwitching, setIsAccountSwitching] = useState(false);
-  
+  const [keywords, setKeywords] = useState([]);
+  const [keywordsLoading, setKeywordsLoading] = useState(false);
+
   // Product caching
   const productsCache = useRef(null);
   const productsCacheTime = useRef(null);
 
-  // -------------------------------
   // HELPER FUNCTIONS
-  // -------------------------------
-
   const persistUser = (userData) => {
     if (userData) {
       setUser(userData);
@@ -45,10 +44,7 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // -------------------------------
   // ACCOUNT SYNC
-  // -------------------------------
-
   const syncAccounts = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -80,26 +76,24 @@ export const AuthProvider = ({ children }) => {
       }
 
       const preferredMerchantId = user?.selectedAccount;
-      let preferredAccount = normalized.find(acc => acc.merchantId === preferredMerchantId) || normalized[0];
+      let preferredAccount =
+        normalized.find((acc) => acc.merchantId === preferredMerchantId) ||
+        normalized[0];
 
       setSelectedAccount(preferredAccount);
       updateUserSelectedAccount(preferredAccount.merchantId);
-
     } catch (err) {
       console.error("Error loading accounts:", err);
     }
   };
 
-  // -------------------------------
   // ACCOUNT SWITCH
-  // -------------------------------
-
   const switchAccount = async (accountId) => {
     if (!accountId) return false;
 
     const accountToSwitch =
-      accounts.find(acc => acc._id === accountId) ||
-      accounts.find(acc => acc.merchantId === accountId);
+      accounts.find((acc) => acc._id === accountId) ||
+      accounts.find((acc) => acc.merchantId === accountId);
 
     if (!accountToSwitch) return false;
 
@@ -110,7 +104,7 @@ export const AuthProvider = ({ children }) => {
       // Clear product cache when switching accounts
       productsCache.current = null;
       productsCacheTime.current = null;
-      
+
       // Immediately update UI (optimistic update)
       setSelectedAccount(accountToSwitch);
       updateUserSelectedAccount(accountToSwitch.merchantId);
@@ -129,7 +123,7 @@ export const AuthProvider = ({ children }) => {
         // Update with fresh data from server
         const updatedAccount = {
           ...accountToSwitch,
-          ...res.data.selectedAccount
+          ...res.data.selectedAccount,
         };
         setSelectedAccount(updatedAccount);
       }
@@ -149,10 +143,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // -------------------------------
   // AUTH VERIFY ON MOUNT
-  // -------------------------------
-
   useEffect(() => {
     const verifyUser = async () => {
       const token = localStorage.getItem("token");
@@ -192,13 +183,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user, loading, selectedAccount]);
 
-  // -------------------------------
   // AUTH FUNCTIONS
-  // -------------------------------
-
   const register = async (name, email, password) => {
     try {
-      const res = await axios.post(`${API}/api/auth/register`, { name, email, password });
+      const res = await axios.post(`${API}/api/auth/register`, {
+        name,
+        email,
+        password,
+      });
       localStorage.setItem("token", res.data.token);
       persistUser(res.data.user);
       await syncAccounts();
@@ -210,7 +202,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post(`${API}/api/auth/login`, { email, password });
+      const res = await axios.post(`${API}/api/auth/login`, {
+        email,
+        password,
+      });
       localStorage.setItem("token", res.data.token);
       persistUser(res.data.user);
       await syncAccounts();
@@ -243,10 +238,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  
-
-
-
+  // get products for selected account
   const getProducts = async (page = 1, limit = 50) => {
     try {
       const token = localStorage.getItem("token");
@@ -254,7 +246,11 @@ export const AuthProvider = ({ children }) => {
 
       // Check cache (valid for 5 minutes)
       const now = Date.now();
-      if (productsCache.current && productsCacheTime.current && (now - productsCacheTime.current) < 5 * 60 * 1000) {
+      if (
+        productsCache.current &&
+        productsCacheTime.current &&
+        now - productsCacheTime.current < 5 * 60 * 1000
+      ) {
         console.log("Using cached products");
         return {
           success: true,
@@ -272,7 +268,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       const products = res.data.products || [];
-      
+
       // Cache the products
       productsCache.current = products;
       productsCacheTime.current = Date.now();
@@ -296,6 +292,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Get keywords for the logged-in user
+  const getKeywords = async () => {
+    if (!user) return;
+    try {
+      setKeywordsLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API}/api/keywords`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setKeywords(res.data || []);
+    } catch (err) {
+      console.error("Error fetching keywords:", err);
+    } finally {
+      setKeywordsLoading(false);
+    }
+  };
+
+  // Add a new keyword
+  const addKeyword = async (text, status = "active") => {
+    if (!user || !text.trim()) return null;
+    try {
+      setKeywordsLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${API}/api/keywords/add`,
+        { text, status, userId: user.id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.data && res.data.keyword) {
+        setKeywords((prev) => [res.data.keyword, ...prev]);
+        return res.data.keyword;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error adding keyword:", err);
+      return null;
+    } finally {
+      setKeywordsLoading(false);
+    }
+  };
+
   const logout = () => clearSession();
 
   const isAuthenticated = () => !!user && !!localStorage.getItem("token");
@@ -316,6 +353,8 @@ export const AuthProvider = ({ children }) => {
         loginWithToken,
         isAuthenticated,
         getProducts,
+        getKeywords,
+        addKeyword,
       }}
     >
       {children}
