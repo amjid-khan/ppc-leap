@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import FeedData from "./component/FeedData.jsx";
 import AdminLayout from "./component/AdminLayout.jsx";
 import ProtectedRoute from "./component/ProtectedRoute.jsx";
+import Keywords from "./component/Keywords.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
 // Handles Google OAuth redirect token and automatic login
@@ -110,6 +111,7 @@ const AppRoutes = () => {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="feeddata" element={<FeedData />} />
+          <Route path="keywords" element={<Keywords />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
 

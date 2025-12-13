@@ -368,7 +368,7 @@ const FeedData = () => {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleOptimize(item.id)}
-                        className="inline-flex items-center px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="inline-flex items-center px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                         title="Optimize this product"
                       >
                         <Sparkles size={16} className="mr-1.5" />

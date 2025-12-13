@@ -5,7 +5,7 @@ import { SkeletonCard, SkeletonDashboardStats, SkeletonDashboardTable } from '..
 import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const Dashboard = () => {
-  const { getProducts, selectedAccount } = useAuth();
+  const { getProducts, selectedAccount, isAccountSwitching } = useAuth();
   const [stats, setStats] = useState({
     totalProducts: 0,
     approvedProducts: 0,
@@ -48,7 +48,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, [getProducts, selectedAccount]);
+  }, [getProducts, selectedAccount, isAccountSwitching]);
 
   const generateChartData = (value, trend = 'up') => {
     const points = 12;

@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [isAccountSwitching, setIsAccountSwitching] = useState(false);
   
   // Product caching
   const productsCache = useRef(null);
@@ -103,6 +104,9 @@ export const AuthProvider = ({ children }) => {
     if (!accountToSwitch) return false;
 
     try {
+      // Start showing loader
+      setIsAccountSwitching(true);
+
       // Clear product cache when switching accounts
       productsCache.current = null;
       productsCacheTime.current = null;
@@ -129,11 +133,19 @@ export const AuthProvider = ({ children }) => {
         };
         setSelectedAccount(updatedAccount);
       }
+
+      // Fetch products for the new account
+      // This keeps the loader visible while data is loading
+      await getProducts(1, 10000);
+
       return true;
     } catch (err) {
       console.error("Error switching account:", err);
       // Revert on error
       return false;
+    } finally {
+      // Stop showing loader only after everything is done
+      setIsAccountSwitching(false);
     }
   };
 
@@ -295,6 +307,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         accounts,
         selectedAccount,
+        isAccountSwitching,
         register,
         login,
         logout,
@@ -319,6 +332,7 @@ export const useAuth = () => {
       loading: true,
       accounts: [],
       selectedAccount: null,
+      isAccountSwitching: false,
       register: async () => ({ success: false }),
       login: async () => ({ success: false }),
       logout: () => {},

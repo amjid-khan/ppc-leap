@@ -22,9 +22,9 @@ const Sidebar = () => {
       path: "/admin/feeddata"
     },
     {
-      label: "Users",
+      label: "Kewords",
       icon: Users,
-      path: "/admin/users"
+      path: "/admin/keywords"
     },
     {
       label: "Settings",
@@ -33,19 +33,7 @@ const Sidebar = () => {
     }
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-    setShowLogoutConfirm(false);
-  };
 
-  const handleLogoutClick = () => {
-    setShowLogoutConfirm(true);
-  };
-
-  const handleCancelLogout = () => {
-    setShowLogoutConfirm(false);
-  };
 
   // Extract first letter from name
   const avatarLetter = user?.name?.charAt(0)?.toUpperCase() || "?";
