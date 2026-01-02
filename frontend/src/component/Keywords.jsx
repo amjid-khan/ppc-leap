@@ -14,7 +14,7 @@ const Keywords = () => {
                 <Key className="text-black dark:text-white" size={26} />
               </div>
 
-              <h1 className="text-3xl font-bold text-black dark:text-white">
+              <h1 className="text-2xl font-bold text-black dark:text-white">
                 Keywords
               </h1>
             </div>

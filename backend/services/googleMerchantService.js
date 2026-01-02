@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import User from "../models/User.js";
 
+// FETCH MERCHANT ACCOUNTS
 export const fetchGoogleMerchantAccounts = async (user) => {
     try {
         if (!user.googleAccessToken || !user.googleRefreshToken) {
@@ -85,6 +86,7 @@ export const fetchGoogleMerchantAccounts = async (user) => {
 };
 
 
+// FETCH PRODUCTS
 export const fetchGoogleMerchantProducts = async (user, merchantId) => {
     try {
         if (!user.googleAccessToken || !user.googleRefreshToken) {
@@ -175,3 +177,4 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
         return [];
     }
 };
+

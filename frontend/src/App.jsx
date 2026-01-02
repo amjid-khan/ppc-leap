@@ -113,6 +113,7 @@ const AppRoutes = () => {
           <Route path="feeddata" element={<FeedData />} />
           <Route path="keywords" element={<Keywords />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
+
         </Route>
 
         {/* Catch-all route */}

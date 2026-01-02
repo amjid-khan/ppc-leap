@@ -22,30 +22,22 @@ const Sidebar = () => {
       path: "/admin/feeddata"
     },
     {
-      label: "Kewords",
+      label: "Keywords",
       icon: Users,
       path: "/admin/keywords"
     },
-    {
-      label: "Settings",
-      icon: Settings,
-      path: "/admin/settings"
-    }
+
   ];
 
-
-
-  // Extract first letter from name
   const avatarLetter = user?.name?.charAt(0)?.toUpperCase() || "?";
 
   return (
     <>
-      <aside className="w-64 bg-white dark:bg-gray-900 h-screen flex flex-col border-r border-slate-200 dark:border-gray-700 shadow-sm">
+      <aside className="w-64 bg-white dark:bg-gray-900 h-screen flex flex-col border-r border-gray-200 dark:border-gray-800">
       
-
         {/* Main Navigation */}
-        <div className="flex-1 p-6">
-          <nav className="flex flex-col space-y-2">
+        <div className="flex-1 pt-6 px-3">
+          <nav className="flex flex-col space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = item.path === "/admin" 
@@ -57,28 +49,14 @@ const Sidebar = () => {
                   key={item.path}
                   to={item.path}
                   className={`
-                    group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${isActive 
-                      ? "bg-blue-50 dark:bg-blue-900 text-green-600 dark:text-green-400 border border-blue-100 dark:border-blue-800" 
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent"
+                      ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" 
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                     }
                   `}
                 >
-                  <div className={`
-                    absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full transition-all duration-200
-                    ${isActive 
-                      ? "bg-green-600 dark:bg-green-400 opacity-100" 
-                      : "bg-slate-300 dark:bg-gray-600 opacity-0 group-hover:opacity-100"
-                    }
-                  `} />
-                  
-                  <Icon
-                    className={`w-5 h-5 transition-colors duration-200 ${
-                      isActive 
-                        ? "text-green-600 dark:text-green-400" 
-                        : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
-                    }`}
-                  />
+                  <Icon className="w-5 h-5" />
                   <span className="font-medium text-sm">{item.label}</span>
                 </Link>
               );
@@ -87,9 +65,6 @@ const Sidebar = () => {
         </div>
 
       </aside>
-
-    
-   
     </>
   );
 };

@@ -10,8 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isAccountSwitching, setIsAccountSwitching] = useState(false);
-  const [keywords, setKeywords] = useState([]);
-  const [keywordsLoading, setKeywordsLoading] = useState(false);
 
   // Product caching
   const productsCache = useRef(null);
@@ -292,46 +290,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Get keywords for the logged-in user
-  const getKeywords = async () => {
-    if (!user) return;
-    try {
-      setKeywordsLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API}/api/keywords`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setKeywords(res.data || []);
-    } catch (err) {
-      console.error("Error fetching keywords:", err);
-    } finally {
-      setKeywordsLoading(false);
-    }
-  };
-
-  // Add a new keyword
-  const addKeyword = async (text, status = "active") => {
-    if (!user || !text.trim()) return null;
-    try {
-      setKeywordsLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        `${API}/api/keywords/add`,
-        { text, status, userId: user.id },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (res.data && res.data.keyword) {
-        setKeywords((prev) => [res.data.keyword, ...prev]);
-        return res.data.keyword;
-      }
-      return null;
-    } catch (err) {
-      console.error("Error adding keyword:", err);
-      return null;
-    } finally {
-      setKeywordsLoading(false);
-    }
-  };
 
   const logout = () => clearSession();
 
@@ -353,8 +311,6 @@ export const AuthProvider = ({ children }) => {
         loginWithToken,
         isAuthenticated,
         getProducts,
-        getKeywords,
-        addKeyword,
       }}
     >
       {children}

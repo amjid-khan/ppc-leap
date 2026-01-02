@@ -95,6 +95,7 @@ const FeedData = () => {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
+
   const currentData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -130,11 +131,6 @@ const FeedData = () => {
     setSelectedImage(null);
   };
 
-  // Handle Optimize button click
-  const handleOptimize = (itemId) => {
-    alert(`Optimizing product ID: ${itemId}`);
-  };
-
   // Handle items per page change
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(Number(e.target.value));
@@ -154,83 +150,80 @@ const FeedData = () => {
   return (
     <div className="">
       {/* Header Card - Consistent with Dashboard */}
-<div className="mb-6 ">
-  <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 p-3">
-    <div className="flex justify-between items-start ">
+      <div className="mb-6 ">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 p-3 ">
+          <div className="flex justify-between items-start ">
+            {/* Left Section */}
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
+                  <Database className="text-black dark:text-white" size={26} />
+                </div>
 
-      {/* Left Section */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
-            <Database className="text-black dark:text-white" size={26} />
+                <h1 className="text-2xl font-bold text-black dark:text-white">
+                  Feed Data
+                </h1>
+              </div>
+
+              <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
+                Manage and review your product feed data
+              </p>
+            </div>
+
+            {/* Right Side - Filters */}
+            <div className="flex gap-3 w-auto items-center">
+              {/* Clear Filter Button */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  <X size={16} />
+                </button>
+              )}
+
+              {/* Status Filter */}
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="approved">Approved</option>
+                  <option value="disapproved">Disapproved</option>
+                  <option value="pending">Pending</option>
+                </select>
+
+                <Filter
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                  size={16}
+                />
+              </div>
+
+              {/* Search Box */}
+              <div className="relative w-[280px]">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-blue-500"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={16}
+                />
+              </div>
+            </div>
           </div>
-
-          <h1 className="text-3xl font-bold text-black dark:text-white">FeedData</h1>
-        </div>
-
-        <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
-          Manage and review your product feed data
-        </p>
-      </div>
-
-      {/* Right Side - Filters */}
-      <div className="flex gap-3 w-auto items-center">
-
-        {/* Clear Filter Button */}
-        {hasActiveFilters && (
-          <button
-            onClick={clearFilters}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            <X size={16} />
-          </button>
-        )}
-
-        {/* Status Filter */}
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="approved">Approved</option>
-            <option value="disapproved">Disapproved</option>
-            <option value="pending">Pending</option>
-          </select>
-
-          <Filter
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
-            size={16}
-          />
-
-        </div>
-
-        {/* Search Box */}
-        <div className="relative w-[280px]">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
-          />
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-
 
       {/* Table section */}
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden mb-24">
@@ -279,7 +272,10 @@ const FeedData = () => {
                 </>
               ) : currentData.length > 0 ? (
                 currentData.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 group">
+                  <tr
+                    key={item.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 group"
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center">
                         {item.status === "approved" ? (
@@ -314,11 +310,11 @@ const FeedData = () => {
                           <img
                             src={item.imageLink}
                             alt={item.title}
-                            className="h-20 w-20 object-cover rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-500 transition-colors"
+                            className="w-20 sm:w-24 md:w-20 aspect-square object-cover rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-500 transition-colors"
                             onClick={() => handleImageClick(item.imageLink)}
                             onError={(e) => {
-                              e.target.src =
-                                "https://via.placeholder.com/80?text=No+Image";
+                              e.currentTarget.src =
+                                "https://via.placeholder.com/100?text=No+Image";
                             }}
                           />
                         ) : (
@@ -348,7 +344,9 @@ const FeedData = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900 dark:text-white">{item.brand}</div>
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {item.brand}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -366,11 +364,7 @@ const FeedData = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleOptimize(item.id)}
-                        className="inline-flex items-center px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-                        title="Optimize this product"
-                      >
+                      <button className="inline-flex items-center px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-md">
                         <Sparkles size={16} className="mr-1.5" />
                         Optimize
                       </button>
@@ -381,7 +375,10 @@ const FeedData = () => {
                 <tr>
                   <td colSpan="10" className="px-4 py-16">
                     <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                      <SearchX size={64} className="text-gray-300 dark:text-gray-700 mb-4" />
+                      <SearchX
+                        size={64}
+                        className="text-gray-300 dark:text-gray-700 mb-4"
+                      />
                       <p className="text-lg font-medium text-gray-700 dark:text-white mb-1">
                         No results found
                       </p>
@@ -405,7 +402,9 @@ const FeedData = () => {
           {/* Results info */}
           <div className="text-sm text-gray-700 dark:text-gray-300">
             {loading ? (
-              <span className="text-gray-500 dark:text-gray-400">Loading products...</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                Loading products...
+              </span>
             ) : (
               <span>
                 <span className="font-medium">{startIndex}</span> to{" "}
@@ -417,7 +416,9 @@ const FeedData = () => {
 
           {/* Rows per page selector */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700 dark:text-gray-300">Show rows:</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Show rows:
+            </span>
             <select
               value={itemsPerPage}
               onChange={handleItemsPerPageChange}
@@ -495,13 +496,21 @@ const FeedData = () => {
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">ID</h3>
-                <p className="font-sm text-gray-700 dark:text-gray-300">{selectedItem.id}</p>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                  ID
+                </h3>
+                <p className="font-sm text-gray-700 dark:text-gray-300">
+                  {selectedItem.id}
+                </p>
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Title</h3>
-                <p className="text-gray-700 dark:text-gray-300">{selectedItem.title}</p>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                  Title
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {selectedItem.title}
+                </p>
               </div>
 
               <div className="mb-4">

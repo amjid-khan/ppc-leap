@@ -65,7 +65,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="h-16 bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700 flex items-center px-6 justify-between z-50 relative transition-colors duration-300">
+      <header className="bg-slate-50 dark:bg-black border-b border-gray-300 dark:border-gray-700 flex items-center px-6 justify-between z-50 relative transition-colors duration-300">
         {/* LEFT: LOGO + TITLE */}
         <div className="flex items-center gap-2">
           <img
