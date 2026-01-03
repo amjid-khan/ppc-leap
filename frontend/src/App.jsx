@@ -78,7 +78,7 @@ const InvalidRouteHandler = () => {
     );
   }
 
-  return isAuthenticated()
+  return isAuthenticated() 
     ? <Navigate to="/admin" replace />
     : <Navigate to="/" replace />;
 };

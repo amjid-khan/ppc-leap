@@ -13,7 +13,6 @@ const Navbar = () => {
   const profileDropdownRef = useRef();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [showAccountManagement, setShowAccountManagement] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -287,7 +286,7 @@ const Navbar = () => {
                 <img
                   src={user.image}
                   alt="Profile"
-                  className="w-9 h-9 rounded-full border-2 border-gray-300 dark:border-gray-600 object-cover hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200"
+                  className="w-9 h-9 rounded-full border-2  border-gray-300 dark:border-gray-600 object-cover hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200"
                   onError={() => setImageError(true)}
                 />
               ) : (
@@ -298,7 +297,7 @@ const Navbar = () => {
             </div>
 
             <div
-              className={`absolute right-0 mt-2 w-80 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all duration-200 z-50 ${
+              className={`absolute right-0 mt-4 w-80 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all duration-200 z-50 ${
                 profileDropdownOpen
                   ? "opacity-100 scale-100 translate-y-0"
                   : "opacity-0 scale-95 pointer-events-none -translate-y-2"
@@ -314,7 +313,7 @@ const Navbar = () => {
                     <img
                       src={user.image}
                       alt="Profile"
-                      className="w-16 h-16 rounded-full object-cover"
+                      className="w-22 h-22 rounded-full object-cover"
                       onError={() => setImageError(true)}
                     />
                   ) : (

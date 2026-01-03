@@ -150,80 +150,81 @@ const FeedData = () => {
   return (
     <div className="">
       {/* Header Card - Consistent with Dashboard */}
-      <div className="mb-6 ">
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 p-3 ">
-          <div className="flex justify-between items-start ">
-            {/* Left Section */}
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
-                  <Database className="text-black dark:text-white" size={26} />
-                </div>
-
-                <h1 className="text-2xl font-bold text-black dark:text-white">
-                  Feed Data
-                </h1>
-              </div>
-
-              <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
-                Manage and review your product feed data
-              </p>
-            </div>
-
-            {/* Right Side - Filters */}
-            <div className="flex gap-3 w-auto items-center">
-              {/* Clear Filter Button */}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  <X size={16} />
-                </button>
-              )}
-
-              {/* Status Filter */}
-              <div className="relative">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="approved">Approved</option>
-                  <option value="disapproved">Disapproved</option>
-                  <option value="pending">Pending</option>
-                </select>
-
-                <Filter
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
-                  size={16}
-                />
-              </div>
-
-              {/* Search Box */}
-              <div className="relative w-[280px]">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-blue-500"
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                />
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  size={16}
-                />
-              </div>
-            </div>
+    <div className="mb-6 ">
+  <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 p-3 ">
+    <div className="flex justify-between items-center ">
+      {/* Left Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-1">
+          <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
+            <Database className="text-black dark:text-white" size={26} />
           </div>
+
+          <h1 className="text-2xl font-bold text-black dark:text-white">
+            Feed Data
+          </h1>
+        </div>
+
+        <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
+          Manage and review your product feed data
+        </p>
+      </div>
+
+      {/* Right Side - Filters */}
+      <div className="flex gap-3 w-auto items-center">
+        {/* Clear Filter Button */}
+        {hasActiveFilters && (
+          <button
+            onClick={clearFilters}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            <X size={16} />
+          </button>
+        )}
+
+        {/* Status Filter */}
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="approved">Approved</option>
+            <option value="disapproved">Disapproved</option>
+            <option value="pending">Pending</option>
+          </select>
+
+          <Filter
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+            size={16}
+          />
+        </div>
+
+        {/* Search Box */}
+        <div className="relative w-[280px]">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-600 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            size={16}
+          />
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Table section */}
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden mb-24">
