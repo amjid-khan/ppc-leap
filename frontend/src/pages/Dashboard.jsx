@@ -37,7 +37,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      // Show loading immediately when switching accounts
       setLoading(true);
+
       try {
         const result = await getProducts(1, 10000);
         if (result.success && result.products) {
@@ -69,12 +71,13 @@ const Dashboard = () => {
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
+        // Hide loading when data is ready
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [getProducts, selectedAccount, isAccountSwitching]);
+  }, [getProducts, selectedAccount]);
 
   const generateChartData = (value, trend = "up") => {
     const points = 12;

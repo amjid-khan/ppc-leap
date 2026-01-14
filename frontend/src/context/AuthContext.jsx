@@ -11,9 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isAccountSwitching, setIsAccountSwitching] = useState(false);
 
-  // Product caching
-  const productsCache = useRef(null);
-  const productsCacheTime = useRef(null);
+  // Product caching - multi-account cache
+  const productsCache = useRef({});
+  const productsCacheTime = useRef({});
+  const productsFetchAbort = useRef(null);
 
   // HELPER FUNCTIONS
   const persistUser = (userData) => {
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // ACCOUNT SYNC
+  // SYNC ACCOUNTS - with background product fetch
   const syncAccounts = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -80,12 +81,48 @@ export const AuthProvider = ({ children }) => {
 
       setSelectedAccount(preferredAccount);
       updateUserSelectedAccount(preferredAccount.merchantId);
+
+      // 🔄 Start background fetch for first account
+      fetchProductsInBackground(preferredAccount.merchantId);
     } catch (err) {
       console.error("Error loading accounts:", err);
     }
   };
 
-  // ACCOUNT SWITCH
+  // BACKGROUND PRODUCT FETCHING - non-blocking
+  const fetchProductsInBackground = async (merchantId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      // Cancel previous fetch if exists
+      if (productsFetchAbort.current) {
+        productsFetchAbort.current.abort();
+      }
+
+      productsFetchAbort.current = new AbortController();
+
+      const res = await axios.get(`${API}/api/merchant/products`, {
+        params: { page: 1, limit: 10000 },
+        headers: { Authorization: `Bearer ${token}` },
+        signal: productsFetchAbort.current.signal,
+      });
+
+      const products = res.data.products || [];
+
+      // Cache products per account
+      productsCache.current[merchantId] = products;
+      productsCacheTime.current[merchantId] = Date.now();
+
+      console.log(`✅ Products cached for ${merchantId}`);
+    } catch (err) {
+      if (err.code !== "ERR_CANCELED") {
+        console.error("Background fetch error:", err.message);
+      }
+    }
+  };
+
+  // ACCOUNT SWITCH - INSTANT UI UPDATE + 2-second loader + Background fetch
   const switchAccount = async (accountId) => {
     if (!accountId) return false;
 
@@ -96,48 +133,47 @@ export const AuthProvider = ({ children }) => {
     if (!accountToSwitch) return false;
 
     try {
-      // Start showing loader
-      setIsAccountSwitching(true);
-
-      // Clear product cache when switching accounts
-      productsCache.current = null;
-      productsCacheTime.current = null;
-
-      // Immediately update UI (optimistic update)
-      setSelectedAccount(accountToSwitch);
-      updateUserSelectedAccount(accountToSwitch.merchantId);
-
-      // Then sync with backend
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token");
 
-      const res = await axios.post(
+      // ⚡ INSTANT: Update UI immediately + Show loader for 2 seconds
+      setIsAccountSwitching(true);
+      setSelectedAccount(accountToSwitch);
+      updateUserSelectedAccount(accountToSwitch.merchantId);
+
+      // ✅ Update backend (non-blocking)
+      axios.post(
         `${API}/api/auth/select-account`,
         { merchantId: accountToSwitch.merchantId },
         { headers: { Authorization: `Bearer ${token}` } }
-      );
+      ).catch(err => console.error("Backend sync error:", err));
 
-      if (res.data.success && res.data.selectedAccount) {
-        // Update with fresh data from server
-        const updatedAccount = {
-          ...accountToSwitch,
-          ...res.data.selectedAccount,
-        };
-        setSelectedAccount(updatedAccount);
+      // 🔄 Check if products cached, if not fetch in background
+      const merchantId = accountToSwitch.merchantId;
+      const now = Date.now();
+      const cachedProducts = productsCache.current[merchantId];
+      const cacheTime = productsCacheTime.current[merchantId];
+
+      // Valid cache = exists AND less than 30 minutes old
+      const hasValidCache = cachedProducts && cacheTime && (now - cacheTime < 30 * 60 * 1000);
+
+      if (!hasValidCache) {
+        // Fetch in background (don't await)
+        fetchProductsInBackground(merchantId);
+      } else {
+        console.log("✅ Using cached products");
       }
 
-      // Fetch products for the new account
-      // This keeps the loader visible while data is loading
-      await getProducts(1, 10000);
+      // ⏱️ Keep loader visible for 2 seconds minimum
+      setTimeout(() => {
+        setIsAccountSwitching(false);
+      }, 2000);
 
       return true;
     } catch (err) {
       console.error("Error switching account:", err);
-      // Revert on error
-      return false;
-    } finally {
-      // Stop showing loader only after everything is done
       setIsAccountSwitching(false);
+      return false;
     }
   };
 
@@ -236,30 +272,39 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // get products for selected account
+  // GET PRODUCTS - Returns cached OR fetches with cache
   const getProducts = async (page = 1, limit = 50) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token");
 
-      // Check cache (valid for 5 minutes)
+      const merchantId = selectedAccount?.merchantId;
+      if (!merchantId) throw new Error("No merchant selected");
+
+      // ⚡ CHECK CACHE FIRST
       const now = Date.now();
+      const cachedProducts = productsCache.current[merchantId];
+      const cacheTime = productsCacheTime.current[merchantId];
+
+      // Valid cache = exists AND less than 30 minutes old
       if (
-        productsCache.current &&
-        productsCacheTime.current &&
-        now - productsCacheTime.current < 5 * 60 * 1000
+        cachedProducts &&
+        cacheTime &&
+        now - cacheTime < 30 * 60 * 1000
       ) {
-        console.log("Using cached products");
+        console.log("✅ Returning cached products");
         return {
           success: true,
-          products: productsCache.current,
-          total: productsCache.current.length,
+          products: cachedProducts,
+          total: cachedProducts.length,
           page: 1,
-          limit: productsCache.current.length,
+          limit: cachedProducts.length,
           fromCache: true,
         };
       }
 
+      // 🔄 NO CACHE - Fetch from API
+      console.log("📡 Fetching products from API...");
       const res = await axios.get(`${API}/api/merchant/products`, {
         params: { page, limit },
         headers: { Authorization: `Bearer ${token}` },
@@ -267,9 +312,9 @@ export const AuthProvider = ({ children }) => {
 
       const products = res.data.products || [];
 
-      // Cache the products
-      productsCache.current = products;
-      productsCacheTime.current = Date.now();
+      // Store in cache
+      productsCache.current[merchantId] = products;
+      productsCacheTime.current[merchantId] = Date.now();
 
       return {
         success: true,

@@ -372,6 +372,23 @@ const FeedData = () => {
                     </td>
                   </tr>
                 ))
+              ) : feedData.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="px-4 py-16">
+                    <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                      <Database
+                        size={64}
+                        className="text-gray-300 dark:text-gray-700 mb-4"
+                      />
+                      <p className="text-lg font-medium text-gray-700 dark:text-white mb-1">
+                        No products in this account
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        This account doesn't have any products yet
+                      </p>
+                    </div>
+                  </td>
+                </tr>
               ) : (
                 <tr>
                   <td colSpan="10" className="px-4 py-16">
