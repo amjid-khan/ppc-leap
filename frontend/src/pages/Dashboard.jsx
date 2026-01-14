@@ -55,8 +55,9 @@ const Dashboard = () => {
           const pending = products.filter(
             (p) => p.approvalStatus === "pending"
           ).length;
-          const approvalRate =
-            total > 0 ? Math.round((approved / total) * 100) : 0;
+        // Use one-decimal precision so mixed approval/disapproval isn’t shown as 100%
+        const approvalRate =
+          total > 0 ? Math.round((approved / total) * 1000) / 10 : 0;
 
           setStats({
             totalProducts: total,

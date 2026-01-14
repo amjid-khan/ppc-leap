@@ -108,10 +108,9 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
 
         console.log(`Fetching ALL PRODUCTS for merchant: ${merchantId}`);
 
+        // 1) Fetch product "data" (title, price, image, etc.)
         const allProducts = [];
         let pageToken = undefined;
-
-        // Fetch all pages
         do {
             try {
                 const requestParams = {
@@ -119,16 +118,13 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
                     maxResults: 250,
                 };
 
-                if (pageToken) {
-                    requestParams.pageToken = pageToken;
-                }
+                if (pageToken) requestParams.pageToken = pageToken;
 
                 const response = await content.products.list(requestParams);
                 const products = response.data.resources || [];
 
                 console.log(`Fetched batch: ${products.length} products`);
                 allProducts.push(...products);
-
                 pageToken = response.data.nextPageToken;
             } catch (pageError) {
                 console.error(`Page error: ${pageError.message}`);
@@ -136,42 +132,93 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
             }
         } while (pageToken);
 
-        console.log(`Total ${allProducts.length} products fetched from merchant ${merchantId}`);
+        // 2) Fetch product "status" (includes disapproved/pending info)
+        const allStatuses = [];
+        let statusPageToken = undefined;
+        do {
+            try {
+                const statusParams = {
+                    merchantId: merchantId,
+                    maxResults: 250,
+                };
+                if (statusPageToken) statusParams.pageToken = statusPageToken;
 
-        return allProducts.map(p => {
-            // Prefer explicit approvalStatus from the API when provided;
-            // otherwise infer from itemLevelIssues (critical -> disapproved, others -> pending, none -> approved)
-            let approvalStatus = null;
-            if (p.approvalStatus) {
-                approvalStatus = String(p.approvalStatus).toLowerCase();
-            } else {
-                // Default to approved unless issues found
-                approvalStatus = "approved";
-                if (p.itemLevelIssues && p.itemLevelIssues.length > 0) {
-                    const disapprovedIssues = p.itemLevelIssues.filter(issue => issue.severity === "critical");
-                    approvalStatus = disapprovedIssues.length > 0 ? "disapproved" : "pending";
-                }
+                const statusResp = await content.productstatuses.list(statusParams);
+                const statuses = statusResp.data.resources || [];
+                console.log(`Fetched status batch: ${statuses.length} products`);
+                allStatuses.push(...statuses);
+                statusPageToken = statusResp.data.nextPageToken;
+            } catch (statusErr) {
+                console.error(`Status page error: ${statusErr.message}`);
+                break;
             }
+        } while (statusPageToken);
 
-            return {
-                id: p.id,
-                title: p.title,
-                link: p.link,
-                imageLink: p.imageLink,
-                price: p.price,
-                salePrice: p.salePrice,
-                availability: p.availability,
-                brand: p.brand,
-                gtin: p.gtin,
-                condition: p.condition,
-                productType: p.productType,
-                customLabel0: p.customLabel0,
-                channel: p.channel,
-                offerId: p.offerId,
+        console.log(
+            `Total ${allProducts.length} products + ${allStatuses.length} statuses fetched from merchant ${merchantId}`
+        );
+
+        const inferApprovalFromStatus = (statusResource) => {
+            // destinationStatuses[].status is commonly one of: "approved", "disapproved", "pending"
+            const dest = statusResource?.destinationStatuses || [];
+            const statuses = dest.map((d) => String(d.status || "").toLowerCase()).filter(Boolean);
+            if (statuses.includes("disapproved")) return "disapproved";
+            if (statuses.includes("pending")) return "pending";
+            if (statuses.includes("approved")) return "approved";
+
+            // Fallback: if itemLevelIssues exist, treat as pending/disapproved depending on severity
+            if (Array.isArray(statusResource?.itemLevelIssues) && statusResource.itemLevelIssues.length > 0) {
+                const critical = statusResource.itemLevelIssues.some((i) => String(i.severity || "").toLowerCase() === "critical");
+                return critical ? "disapproved" : "pending";
+            }
+            return "approved";
+        };
+
+        const extractOfferIdFromProductId = (productId) => {
+            // productId often looks like: channel:contentLanguage:targetCountry:offerId
+            if (!productId) return null;
+            const parts = String(productId).split(":");
+            return parts.length ? parts[parts.length - 1] : String(productId);
+        };
+
+        const productById = new Map(allProducts.map((p) => [p.id, p]));
+        const statusById = new Map(allStatuses.map((s) => [s.productId, s]));
+
+        // Union of ids from both sources so disapproved items (present in statuses) also show up
+        const allIds = new Set([...productById.keys(), ...statusById.keys()]);
+
+        const merged = [];
+        for (const id of allIds) {
+            const p = productById.get(id);
+            const s = statusById.get(id);
+
+            const approvalStatus = s ? inferApprovalFromStatus(s) : (p?.approvalStatus ? String(p.approvalStatus).toLowerCase() : "approved");
+
+            // Prefer product fields when available; otherwise fall back to status fields
+            const offerId = p?.offerId || extractOfferIdFromProductId(s?.productId) || null;
+
+            merged.push({
+                id: p?.id || s?.productId || id,
+                title: p?.title || s?.title || "",
+                link: p?.link || s?.link || "",
+                imageLink: p?.imageLink || "",
+                price: p?.price,
+                salePrice: p?.salePrice,
+                availability: p?.availability,
+                brand: p?.brand,
+                gtin: p?.gtin,
+                condition: p?.condition,
+                productType: p?.productType,
+                customLabel0: p?.customLabel0,
+                channel: p?.channel,
+                offerId,
                 approvalStatus,
-                raw: p
-            };
-        });
+                // keep raw for existing UI usage (description, etc.)
+                raw: p || { productstatus: s },
+            });
+        }
+
+        return merged;
     } catch (error) {
         console.error("Error fetching products:", error.message);
         return [];
