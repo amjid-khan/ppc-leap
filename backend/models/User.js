@@ -47,6 +47,8 @@ const userSchema = new mongoose.Schema(
             status: String,      // e.g., "active", "pending", etc. from adsLinks
             reviewStatus: String,
             phoneNumber: String,
+            productCount: { type: Number, default: 0 }, // Product count cached in DB
+            productCountUpdatedAt: Date, // When product count was last updated
             businessAddress: {
                 streetAddress: String,
                 locality: String,

@@ -25,13 +25,6 @@ const SuperAdminAccount = () => {
           </div>
         </div>
       </div>
-
-      {/* Account Content */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <p className="text-gray-600 dark:text-gray-400">
-          Account settings and preferences will be available here.
-        </p>
-      </div>
     </div>
   );
 };
