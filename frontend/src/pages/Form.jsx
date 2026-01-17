@@ -83,8 +83,19 @@ const Form = () => {
       setLoading(false);
     } else {
       resetForm();
-      // Redirect to dashboard
-      navigate("/admin", { replace: true });
+      // Check user role and redirect accordingly
+      if (res.user && res.user.role === "superadmin") {
+        navigate("/superadmin/dashboard", { replace: true });
+        // Immediately replace history to prevent back navigation
+        setTimeout(() => {
+          window.history.replaceState(null, "", "/superadmin/dashboard");
+          // Clear any previous history entries
+          window.history.pushState(null, "", "/superadmin/dashboard");
+        }, 100);
+      } else {
+        // Redirect to regular admin dashboard
+        navigate("/admin", { replace: true });
+      }
     }
   };
 

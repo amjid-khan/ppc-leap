@@ -66,7 +66,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700 flex items-center px-6 justify-between z-50 relative transition-colors duration-300">
+      <header className="bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700 flex items-center px-6 py-4 justify-between z-50 relative transition-colors duration-300 h-16 min-h-[64px]">
         {/* LEFT: LOGO + TITLE */}
         <div className="flex items-center gap-2">
           <img
@@ -110,11 +110,14 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* DIVIDER */}
-          <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
+          {/* DIVIDER - Hide for superadmin */}
+          {user?.role !== "superadmin" && (
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
+          )}
 
-          {/* ACCOUNT DROPDOWN */}
-          <div className="relative" ref={dropdownRef}>
+          {/* ACCOUNT DROPDOWN - Hide for superadmin */}
+          {user?.role !== "superadmin" && (
+            <div className="relative" ref={dropdownRef}>
             <div
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="cursor-pointer flex flex-col items-start px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-300"
@@ -274,6 +277,7 @@ const Navbar = () => {
               </div>
             </div>
           </div>
+          )}
 
           {/* DIVIDER */}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>

@@ -2,9 +2,12 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Form from "./pages/Form.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard.jsx";
 import FeedData from "./component/FeedData.jsx";
 import AdminLayout from "./component/AdminLayout.jsx";
+import SuperAdminLayout from "./component/SuperAdminLayout.jsx";
 import ProtectedRoute from "./component/ProtectedRoute.jsx";
+import SuperAdminRoute from "./component/SuperAdminRoute.jsx";
 import Keywords from "./component/Keywords.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
@@ -22,24 +25,55 @@ const AuthRedirectHandler = () => {
       // Log in user with token from Google OAuth
       loginWithToken(token).then(res => {
         if (res.success) {
-          // Remove token from URL
-          window.history.replaceState({}, document.title, "/admin");
+          // Remove token from URL - will redirect based on role in next effect
+          window.history.replaceState({}, document.title, window.location.pathname);
         } else {
           console.error("Token login failed:", res.message);
         }
       });
-    } else if (!loading && user && location.pathname === "/") {
-      // Redirect logged-in user away from login page
-      navigate("/admin", { replace: true });
     }
-  }, [user, loading, location.pathname, navigate, loginWithToken]);
+  }, [loginWithToken]);
+
+  // Separate effect for role-based redirect after login
+  useEffect(() => {
+    if (!loading && user) {
+      // If superadmin is on any admin route, redirect to superadmin dashboard
+      if (user.role === "superadmin" && location.pathname.startsWith("/admin")) {
+        navigate("/superadmin/dashboard", { replace: true });
+        // Replace history to prevent back navigation
+        window.history.replaceState(null, "", "/superadmin/dashboard");
+        return;
+      }
+      
+      // If regular admin/user tries to access superadmin route, redirect to admin dashboard
+      if (user.role !== "superadmin" && location.pathname.startsWith("/superadmin")) {
+        navigate("/admin", { replace: true });
+        return;
+      }
+      
+      // If on login page, redirect based on role
+      if (location.pathname === "/") {
+        if (user.role === "superadmin") {
+          navigate("/superadmin/dashboard", { replace: true });
+          // Replace history to prevent back navigation to login
+          setTimeout(() => {
+            window.history.replaceState(null, "", "/superadmin/dashboard");
+            window.history.pushState(null, "", "/superadmin/dashboard");
+          }, 100);
+        } else {
+          navigate("/admin", { replace: true });
+          window.history.replaceState(null, "", "/admin");
+        }
+      }
+    }
+  }, [user, loading, location.pathname, navigate]);
 
   return null;
 };
 
 // Public route wrapper for login page
 const PublicRoute = ({ children }) => {
-  const { loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated, user } = useAuth();
 
   if (loading) {
     return (
@@ -55,6 +89,10 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated()) {
+    // Redirect based on user role
+    if (user?.role === "superadmin") {
+      return <Navigate to="/superadmin/dashboard" replace />;
+    }
     return <Navigate to="/admin" replace />;
   }
 
@@ -63,7 +101,7 @@ const PublicRoute = ({ children }) => {
 
 // Handles invalid or unknown routes
 const InvalidRouteHandler = () => {
-  const { loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated, user } = useAuth();
 
   if (loading) {
     return (
@@ -78,9 +116,15 @@ const InvalidRouteHandler = () => {
     );
   }
 
-  return isAuthenticated() 
-    ? <Navigate to="/admin" replace />
-    : <Navigate to="/" replace />;
+  if (isAuthenticated()) {
+    // Redirect based on user role
+    if (user?.role === "superadmin") {
+      return <Navigate to="/superadmin/dashboard" replace />;
+    }
+    return <Navigate to="/admin" replace />;
+  }
+
+  return <Navigate to="/" replace />;
 };
 
 // Router wrapper component
@@ -114,6 +158,20 @@ const AppRoutes = () => {
           <Route path="keywords" element={<Keywords />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
 
+        </Route>
+
+        {/* Super Admin routes */}
+        <Route 
+          path="/superadmin" 
+          element={
+            <SuperAdminRoute>
+              <SuperAdminLayout />
+            </SuperAdminRoute>
+          }
+        >
+          <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
 
         {/* Catch-all route */}

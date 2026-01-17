@@ -243,7 +243,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", res.data.token);
       persistUser(res.data.user);
       await syncAccounts();
-      return { success: true };
+      return { success: true, user: res.data.user };
     } catch (err) {
       return { success: false, message: err.message };
     }
