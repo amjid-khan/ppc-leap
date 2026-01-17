@@ -49,6 +49,7 @@ const AuthRedirectHandler = () => {
       // If regular admin/user tries to access superadmin route, redirect to admin dashboard
       if (user.role !== "superadmin" && location.pathname.startsWith("/superadmin")) {
         navigate("/admin", { replace: true });
+        window.history.replaceState(null, "", "/admin");
         return;
       }
       
@@ -57,10 +58,7 @@ const AuthRedirectHandler = () => {
         if (user.role === "superadmin") {
           navigate("/superadmin/dashboard", { replace: true });
           // Replace history to prevent back navigation to login
-          setTimeout(() => {
-            window.history.replaceState(null, "", "/superadmin/dashboard");
-            window.history.pushState(null, "", "/superadmin/dashboard");
-          }, 100);
+          window.history.replaceState(null, "", "/superadmin/dashboard");
         } else {
           navigate("/admin", { replace: true });
           window.history.replaceState(null, "", "/admin");

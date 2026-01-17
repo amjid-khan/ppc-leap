@@ -29,13 +29,15 @@ const Form = () => {
         try {
           const res = await loginWithToken(urlToken);
 
-          // Remove token from URL
+          // Remove token from URL and replace history
           window.history.replaceState({}, document.title, window.location.pathname);
 
           if (res.success) {
             // Wait a moment for AuthContext to update, then redirect
             setTimeout(() => {
+              // Navigate with replace and also clear history to prevent back to login
               navigate("/admin", { replace: true });
+              window.history.replaceState(null, "", "/admin");
             }, 500);
           } else {
             setError(res?.message || "Google login failed");

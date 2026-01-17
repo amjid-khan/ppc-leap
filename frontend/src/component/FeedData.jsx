@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Eye,
@@ -30,6 +30,12 @@ const FeedData = () => {
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  // Drag scroll state
+  const tableContainerRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
 
   // Fetch all products (load everything at once)
   useEffect(() => {
@@ -147,6 +153,25 @@ const FeedData = () => {
   // Check if any filter is active
   const hasActiveFilters = searchTerm !== "" || statusFilter !== "all";
 
+  // Handle mouse down for drag scroll
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragStartX(e.clientX);
+    setDragStartScrollLeft(tableContainerRef.current.scrollLeft);
+  };
+
+  // Handle mouse move for drag scroll
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    const x = e.clientX - dragStartX;
+    tableContainerRef.current.scrollLeft = dragStartScrollLeft - x;
+  };
+
+  // Handle mouse up for drag scroll
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="">
       {/* Header Card - Consistent with Dashboard */}
@@ -228,7 +253,14 @@ const FeedData = () => {
 
       {/* Table section */}
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden mb-24">
-        <div className="overflow-x-auto">
+        <div
+          ref={tableContainerRef}
+          className="overflow-x-auto"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-100 dark:bg-gray-800">
               <tr>
