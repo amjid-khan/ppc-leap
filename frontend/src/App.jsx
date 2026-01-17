@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocat
 import Form from "./pages/Form.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard.jsx";
+import SuperAdminAccount from "./pages/SuperAdminAccount.jsx";
 import FeedData from "./component/FeedData.jsx";
 import AdminLayout from "./component/AdminLayout.jsx";
 import SuperAdminLayout from "./component/SuperAdminLayout.jsx";
@@ -170,6 +171,7 @@ const AppRoutes = () => {
           }
         >
           <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route path="account" element={<SuperAdminAccount />} />
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>

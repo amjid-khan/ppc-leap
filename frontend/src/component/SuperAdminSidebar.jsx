@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, UserCircle } from "lucide-react";
 
 const SuperAdminSidebar = () => {
   const location = useLocation();
@@ -10,6 +10,11 @@ const SuperAdminSidebar = () => {
       label: "Overview",
       icon: LayoutDashboard,
       path: "/superadmin/dashboard"
+    },
+    {
+      label: "Account",
+      icon: UserCircle,
+      path: "/superadmin/account"
     },
   ];
 
