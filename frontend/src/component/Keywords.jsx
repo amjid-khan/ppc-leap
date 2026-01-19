@@ -15,8 +15,8 @@ const Keywords = () => {
             {/* Left Section */}
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
-                  <Key className="text-black dark:text-white" size={26} />
+                <div className="bg-green-500 dark:bg-green-800 p-2.5 rounded-lg">
+                  <Key className="text-white dark:text-white" size={26} />
                 </div>
 
                 <h1 className="text-2xl font-bold text-black dark:text-white">
@@ -32,7 +32,7 @@ const Keywords = () => {
             {/* Right Section - Add Keyword Button */}
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium"
             >
               <Plus size={16} />
               Add Keyword

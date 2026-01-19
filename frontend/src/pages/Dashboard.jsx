@@ -188,8 +188,8 @@ const Dashboard = () => {
             {/* Left Section */}
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
-                  <Activity className="text-black dark:text-white" size={26} />
+                <div className="bg-green-500 dark:bg-green-800 p-2.5 rounded-lg">
+                  <Activity className="text-white dark:text-white" size={26} />
                 </div>
                 <h1 className="text-2xl font-bold text-black dark:text-white">
                   Dashboard
@@ -441,86 +441,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Products Table - Light Colors */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-100 dark:bg-blue-900 p-2.5 rounded-lg">
-              <Package size={22} className="text-blue-600 dark:text-blue-400" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Recent Products
-            </h2>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Title
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Brand
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {loading ? (
-                <SkeletonDashboardTable />
-              ) : (
-                recentProducts.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-md truncate">
-                      {product.title}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                          product.approvalStatus === "approved"
-                            ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
-                            : product.approvalStatus === "disapproved"
-                            ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
-                            : "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
-                        }`}
-                      >
-                        {product.approvalStatus === "approved" && (
-                          <CheckCircle size={13} />
-                        )}
-                        {product.approvalStatus === "disapproved" && (
-                          <XCircle size={13} />
-                        )}
-                        {product.approvalStatus === "pending" && (
-                          <AlertCircle size={13} />
-                        )}
-                        {product.approvalStatus.charAt(0).toUpperCase() +
-                          product.approvalStatus.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-medium">
-                      {product.price
-                        ? `${product.price.currency} ${product.price.value}`
-                        : "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                      {product.brand || "N/A"}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 };

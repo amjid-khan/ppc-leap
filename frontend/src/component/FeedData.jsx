@@ -195,8 +195,8 @@ const FeedData = () => {
       {/* Left Section */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <div className="bg-gray-100 dark:bg-gray-800 p-2.5 rounded-lg">
-            <Database className="text-black dark:text-white" size={26} />
+          <div className="bg-green-500 dark:bg-green-800 p-2.5 rounded-lg">
+            <Database className="text-white dark:text-white" size={26} />
           </div>
 
           <h1 className="text-2xl font-bold text-black dark:text-white">
@@ -228,8 +228,8 @@ const FeedData = () => {
             onClick={() => setShowFilterDropdown(!showFilterDropdown)}
             className={`p-2 rounded-lg transition-all duration-200 flex items-center justify-center ${
               statusFilter !== "all"
-                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                ? "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                : "bg-green-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
             } hover:scale-105`}
             title="Filter by status"
           >
@@ -255,7 +255,7 @@ const FeedData = () => {
                     }}
                     className={`w-full text-left px-4 py-3 rounded-md transition-all duration-200 font-medium text-sm ${
                       statusFilter === option.value
-                        ? "bg-blue-500 text-white shadow-md"
+                        ? "bg-green-500 text-white shadow-md"
                         : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                   >
