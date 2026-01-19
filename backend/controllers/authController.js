@@ -38,6 +38,10 @@ export const registerUser = async (req, res) => {
             role: superAdminExists ? "user" : "superadmin"
         });
 
+        const token = generateToken(user._id);
+        user.authToken = token;
+        await user.save();
+
         res.status(201).json({
             message: "User Registered",
             user: {
@@ -46,7 +50,7 @@ export const registerUser = async (req, res) => {
                 email: user.email,
                 role: user.role,
             },
-            token: generateToken(user._id),
+            token: token,
         });
 
     } catch (err) {
@@ -72,11 +76,16 @@ export const loginUser = async (req, res) => {
         const match = await user.comparePassword(password);
         if (!match) return res.status(400).json({ message: "Invalid Credentials" });
 
+        const token = generateToken(user._id);
+
+        // Save token in database
+        user.authToken = token;
+        await user.save();
 
         res.json({
             message: "Login Successful",
             user: formatUserResponse(user),
-            token: generateToken(user._id),
+            token: token,
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -86,8 +95,24 @@ export const loginUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find(); // assuming you have a User model
-        res.status(200).json(users);
+        const users = await User.find();
+
+        const usersWithAccounts = users.map(user => {
+            const userObj = user.toObject ? user.toObject() : (typeof user === 'object' ? user : {});
+
+            // Add accounts with product count
+            const accountsWithProductCount = (userObj.googleMerchantAccounts || []).map(account => ({
+                ...account,
+                productCount: account.productCount || 0
+            }));
+
+            return {
+                ...userObj,
+                googleMerchantAccounts: accountsWithProductCount
+            };
+        });
+
+        res.status(200).json(usersWithAccounts);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -97,33 +122,33 @@ export const getAllUsers = async (req, res) => {
 export const getAllAccounts = async (req, res) => {
     try {
         const users = await User.find().select('name email googleMerchantAccounts');
-        
+
         const allAccounts = [];
-        
+
         for (const user of users) {
             if (user.googleMerchantAccounts && user.googleMerchantAccounts.length > 0) {
                 for (const account of user.googleMerchantAccounts) {
                     // Convert account to plain object if it's a Mongoose document
                     const accountObj = account.toObject ? account.toObject() : (typeof account === 'object' ? account : {});
-                    
-        // Get product count from DB (already cached)
-        const productCount = accountObj.productCount || 0;
-        
-        allAccounts.push({
-            id: accountObj.id || accountObj._id || null,
-            name: accountObj.name || "Unnamed Account",
-            email: accountObj.email || "",
-            websiteUrl: accountObj.websiteUrl || "",
-            userId: user._id.toString(), // Convert to string for frontend
-            userName: user.name || "N/A",
-            userEmail: user.email || "N/A",
-            productCount: productCount,
-            productCountUpdatedAt: accountObj.productCountUpdatedAt || null
-        });
+
+                    // Get product count from DB (already cached)
+                    const productCount = accountObj.productCount || 0;
+
+                    allAccounts.push({
+                        id: accountObj.id || accountObj._id || null,
+                        name: accountObj.name || "Unnamed Account",
+                        email: accountObj.email || "",
+                        websiteUrl: accountObj.websiteUrl || "",
+                        userId: user._id.toString(), // Convert to string for frontend
+                        userName: user.name || "N/A",
+                        userEmail: user.email || "N/A",
+                        productCount: productCount,
+                        productCountUpdatedAt: accountObj.productCountUpdatedAt || null
+                    });
                 }
             }
         }
-        
+
         res.status(200).json(allAccounts);
     } catch (error) {
         console.error("Error fetching accounts:", error);
@@ -135,7 +160,7 @@ export const getAllAccounts = async (req, res) => {
 export const getProductCount = async (req, res) => {
     try {
         const { userId, merchantId } = req.query;
-        
+
         if (!userId || !merchantId) {
             return res.status(400).json({ message: "userId and merchantId are required" });
         }
@@ -156,18 +181,18 @@ export const getProductCount = async (req, res) => {
         // Start with cached product count from DB
         let productCount = account.productCount || 0;
         const cachedCount = account.productCount || 0;
-        
+
         console.log(`[${new Date().toISOString()}] Getting product count for merchant ${merchantId} (user: ${user.email})`);
         console.log(`Cached count in DB: ${cachedCount}`);
-        
+
         // Try to fetch fresh product count, but preserve cached if fetch fails
         try {
             if (user.googleAccessToken && user.googleRefreshToken) {
                 const products = await fetchGoogleMerchantProducts(user, merchantId);
                 const freshCount = Array.isArray(products) ? products.length : 0;
-                
+
                 console.log(`Fresh fetch returned: ${freshCount} products`);
-                
+
                 // Only update if:
                 // 1. Fresh count > 0 (we got valid data), OR
                 // 2. Cached count is 0 (no previous data, use fresh even if 0)
@@ -175,7 +200,7 @@ export const getProductCount = async (req, res) => {
                     // Got valid fresh data - use it
                     productCount = freshCount;
                     console.log(`[${new Date().toISOString()}] ✅ Using fresh count ${productCount} for merchant ${merchantId}`);
-                    
+
                     // Update product count in DB
                     const accIndex = user.googleMerchantAccounts.findIndex(acc => acc.id === merchantId);
                     if (accIndex !== -1) {
@@ -198,12 +223,12 @@ export const getProductCount = async (req, res) => {
             }
         } catch (err) {
             // Check if it's an authentication error
-            const isAuthError = err.message?.includes('invalid_grant') || 
-                               err.message?.includes('unauthorized') ||
-                               err.message?.includes('invalid_request') ||
-                               err.code === 401 ||
-                               err.response?.status === 401;
-            
+            const isAuthError = err.message?.includes('invalid_grant') ||
+                err.message?.includes('unauthorized') ||
+                err.message?.includes('invalid_request') ||
+                err.code === 401 ||
+                err.response?.status === 401;
+
             if (isAuthError) {
                 console.error(`❌ Authentication error for account ${merchantId} (user: ${user.email}). Preserving cached count: ${cachedCount}`);
                 // Preserve cached count - don't overwrite with 0

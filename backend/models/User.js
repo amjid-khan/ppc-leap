@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema(
             },
         },
 
+        // JWT TOKEN FOR EMAIL/PASSWORD AUTH
+        authToken: {
+            type: String,
+            default: null,
+        },
+
         // GOOGLE AUTH DATA
         googleId: { type: String, unique: true, sparse: true },
         googlePicture: String,

@@ -102,7 +102,7 @@ const Form = () => {
         {/* Left Side - 70% IMAGE */}
 <div className="md:w-[70%] h-screen">
   <img
-    src="/form.png"
+    src="/form.jpeg"
     alt="Form Visual"
    className="w-full h-full object-cover object-center"
 
