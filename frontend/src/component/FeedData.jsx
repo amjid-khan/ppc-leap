@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Eye,
@@ -30,6 +30,20 @@ const FeedData = () => {
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const filterDropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+        setShowFilterDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Fetch all products (load everything at once)
   useEffect(() => {
@@ -176,31 +190,56 @@ const FeedData = () => {
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="p-2 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 flex items-center gap-2 transition-all duration-200 hover:scale-105"
+            title="Clear all filters"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         )}
 
-        {/* Status Filter */}
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500"
+        {/* Status Filter Dropdown */}
+        <div className="relative" ref={filterDropdownRef}>
+          <button
+            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+            className={`p-2 rounded-lg transition-all duration-200 flex items-center justify-center ${
+              statusFilter !== "all"
+                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+            } hover:scale-105`}
+            title="Filter by status"
           >
-            <option value="approved">Approved</option>
-            <option value="disapproved">Disapproved</option>
-            <option value="pending">Pending</option>
-          </select>
+            <Filter size={18} />
+          </button>
 
-          <Filter
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
-            size={16}
-          />
+          {/* Dropdown Menu */}
+          {showFilterDropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+              <div className="p-2">
+                {[
+                  { value: "all", label: "All Products" },
+                  { value: "approved", label: "Approved" },
+                  { value: "disapproved", label: "Disapproved" },
+                  { value: "pending", label: "Pending" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setStatusFilter(option.value);
+                      setCurrentPage(1);
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-md transition-all duration-200 font-medium text-sm ${
+                      statusFilter === option.value
+                        ? "bg-blue-500 text-white shadow-md"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Search Box */}
