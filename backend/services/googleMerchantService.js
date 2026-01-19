@@ -1,6 +1,54 @@
 import { google } from "googleapis";
 import User from "../models/User.js";
 
+// Helper function to fetch product count asynchronously
+const fetchProductCountAsync = async (user, merchantId) => {
+    try {
+        if (!user.googleAccessToken || !user.googleRefreshToken) {
+            return 0;
+        }
+
+        const auth = new google.auth.OAuth2(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET
+        );
+
+        auth.setCredentials({
+            access_token: user.googleAccessToken,
+            refresh_token: user.googleRefreshToken,
+        });
+
+        const content = google.content({ version: "v2.1", auth });
+
+        // Just count products without fetching all details
+        let totalCount = 0;
+        let pageToken = undefined;
+        do {
+            try {
+                const requestParams = {
+                    merchantId: merchantId,
+                    maxResults: 250,
+                };
+                if (pageToken) requestParams.pageToken = pageToken;
+
+                const response = await content.products.list(requestParams);
+                const products = response.data.resources || [];
+                totalCount += products.length;
+                pageToken = response.data.nextPageToken;
+            } catch (pageError) {
+                console.error(`Error counting products for ${merchantId}:`, pageError.message);
+                break;
+            }
+        } while (pageToken);
+
+        console.log(`Product count for ${merchantId}: ${totalCount}`);
+        return totalCount;
+    } catch (error) {
+        console.error(`Error fetching product count for ${merchantId}:`, error.message);
+        return 0;
+    }
+};
+
 // FETCH MERCHANT ACCOUNTS
 export const fetchGoogleMerchantAccounts = async (user) => {
     try {
@@ -17,6 +65,32 @@ export const fetchGoogleMerchantAccounts = async (user) => {
         auth.setCredentials({
             access_token: user.googleAccessToken,
             refresh_token: user.googleRefreshToken,
+        });
+
+        // Handle token refresh automatically
+        auth.on('tokens', async (tokens) => {
+            if (tokens.access_token) {
+                try {
+                    const updatedUser = await User.findById(user._id);
+                    if (updatedUser) {
+                        updatedUser.googleAccessToken = tokens.access_token;
+                        if (tokens.refresh_token) {
+                            updatedUser.googleRefreshToken = tokens.refresh_token;
+                        }
+                        if (tokens.expiry_date) {
+                            updatedUser.googleTokenExpiry = new Date(tokens.expiry_date);
+                        }
+                        await updatedUser.save();
+                        console.log(`✅ Refreshed Google token for user ${user.email}`);
+                        user.googleAccessToken = tokens.access_token;
+                        if (tokens.refresh_token) {
+                            user.googleRefreshToken = tokens.refresh_token;
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error saving refreshed token:`, err.message);
+                }
+            }
         });
 
         const content = google.content({ version: "v2.1", auth });
@@ -43,6 +117,32 @@ export const fetchGoogleMerchantAccounts = async (user) => {
 
                 const account = response.data;
 
+                // Get existing account from DB if exists to preserve product count
+                const existingAccount = user.googleMerchantAccounts?.find(acc => acc.id === account.id);
+                let productCount = existingAccount?.productCount || 0;
+                let productCountUpdatedAt = existingAccount?.productCountUpdatedAt || null;
+
+                // Check if product count needs to be updated (more than 24 hours old or doesn't exist)
+                const shouldUpdateCount = !productCountUpdatedAt || 
+                    (Date.now() - new Date(productCountUpdatedAt).getTime() > 24 * 60 * 60 * 1000);
+
+                // Fetch product count in background (async, non-blocking) if needed
+                if (shouldUpdateCount) {
+                    fetchProductCountAsync(user, account.id).then(count => {
+                        // Update product count in DB asynchronously
+                        User.findById(user._id).then(updatedUser => {
+                            if (updatedUser) {
+                                const accIndex = updatedUser.googleMerchantAccounts.findIndex(acc => acc.id === account.id);
+                                if (accIndex !== -1) {
+                                    updatedUser.googleMerchantAccounts[accIndex].productCount = count;
+                                    updatedUser.googleMerchantAccounts[accIndex].productCountUpdatedAt = new Date();
+                                    updatedUser.save().catch(err => console.error("Error updating product count:", err));
+                                }
+                            }
+                        }).catch(err => console.error("Error finding user for product count update:", err));
+                    }).catch(err => console.error("Error fetching product count async:", err));
+                }
+
                 accounts.push({
                     id: account.id,
                     name: account.name || "Unnamed Account",
@@ -52,6 +152,8 @@ export const fetchGoogleMerchantAccounts = async (user) => {
                     adultContent: account.adultContent || false,
                     status: account.adsLinks?.[0]?.status || "unknown",
                     reviewStatus: account.reviewStatus || "",
+                    productCount: productCount,
+                    productCountUpdatedAt: productCountUpdatedAt,
                     businessAddress: account.businessInformation?.address || {},
                     phoneNumber: account.businessInformation?.phoneNumber || "",
                     customerService: account.businessInformation?.customerService || {},
@@ -104,6 +206,32 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
             refresh_token: user.googleRefreshToken,
         });
 
+        // Handle token refresh automatically
+        auth.on('tokens', async (tokens) => {
+            if (tokens.access_token) {
+                try {
+                    const updatedUser = await User.findById(user._id);
+                    if (updatedUser) {
+                        updatedUser.googleAccessToken = tokens.access_token;
+                        if (tokens.refresh_token) {
+                            updatedUser.googleRefreshToken = tokens.refresh_token;
+                        }
+                        if (tokens.expiry_date) {
+                            updatedUser.googleTokenExpiry = new Date(tokens.expiry_date);
+                        }
+                        await updatedUser.save();
+                        console.log(`✅ Refreshed Google token for user ${user.email}`);
+                        user.googleAccessToken = tokens.access_token;
+                        if (tokens.refresh_token) {
+                            user.googleRefreshToken = tokens.refresh_token;
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error saving refreshed token:`, err.message);
+                }
+            }
+        });
+
         const content = google.content({ version: "v2.1", auth });
 
         console.log(`Fetching ALL PRODUCTS for merchant: ${merchantId}`);
@@ -127,8 +255,22 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
                 allProducts.push(...products);
                 pageToken = response.data.nextPageToken;
             } catch (pageError) {
-                console.error(`Page error: ${pageError.message}`);
-                break;
+                // Check if it's an auth error
+                if (pageError.message?.includes('invalid_grant') || pageError.message?.includes('unauthorized')) {
+                    console.error(`⚠️ Authentication error (invalid_grant/unauthorized) for ${merchantId}. User may need to re-authenticate.`);
+                    // Try to refresh token if possible
+                    try {
+                        await auth.refreshAccessToken();
+                        // Retry once after refresh
+                        continue;
+                    } catch (refreshError) {
+                        console.error(`❌ Token refresh failed for ${merchantId}:`, refreshError.message);
+                        break;
+                    }
+                } else {
+                    console.error(`Page error for ${merchantId}:`, pageError.message);
+                    break;
+                }
             }
         } while (pageToken);
 
@@ -220,8 +362,22 @@ export const fetchGoogleMerchantProducts = async (user, merchantId) => {
 
         return merged;
     } catch (error) {
-        console.error("Error fetching products:", error.message);
-        return [];
+        // Check if it's an auth error
+        const isAuthError = error.message?.includes('invalid_grant') || 
+                           error.message?.includes('unauthorized') ||
+                           error.code === 401;
+        
+        if (isAuthError) {
+            console.error(`❌ Authentication error (invalid_grant/unauthorized) for merchant ${merchantId}. User ${user.email} may need to re-authenticate with Google.`);
+            console.error(`Error:`, error.message);
+            // Return empty array - controller will use cached count
+            // Don't overwrite cached count with 0
+            return [];
+        } else {
+            console.error(`Error fetching products for merchant ${merchantId}:`, error.message);
+            console.error(`Full error:`, error);
+            return [];
+        }
     }
 };
 

@@ -29,13 +29,15 @@ const Form = () => {
         try {
           const res = await loginWithToken(urlToken);
 
-          // Remove token from URL
+          // Remove token from URL and replace history
           window.history.replaceState({}, document.title, window.location.pathname);
 
           if (res.success) {
             // Wait a moment for AuthContext to update, then redirect
             setTimeout(() => {
+              // Navigate with replace and also clear history to prevent back to login
               navigate("/admin", { replace: true });
+              window.history.replaceState(null, "", "/admin");
             }, 500);
           } else {
             setError(res?.message || "Google login failed");
@@ -83,8 +85,19 @@ const Form = () => {
       setLoading(false);
     } else {
       resetForm();
-      // Redirect to dashboard
-      navigate("/admin", { replace: true });
+      // Check user role and redirect accordingly
+      if (res.user && res.user.role === "superadmin") {
+        navigate("/superadmin/dashboard", { replace: true });
+        // Immediately replace history to prevent back navigation
+        setTimeout(() => {
+          window.history.replaceState(null, "", "/superadmin/dashboard");
+          // Clear any previous history entries
+          window.history.pushState(null, "", "/superadmin/dashboard");
+        }, 100);
+      } else {
+        // Redirect to regular admin dashboard
+        navigate("/admin", { replace: true });
+      }
     }
   };
 
