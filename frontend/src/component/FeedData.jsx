@@ -436,7 +436,7 @@ const FeedData = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <button className="inline-flex items-center px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-md">
+                      <button className="inline-flex items-center px-3 py-1.5 bg-green-500 text-white text-sm font-medium rounded-md">
                         <Sparkles size={16} className="mr-1.5" />
                         Optimize
                       </button>

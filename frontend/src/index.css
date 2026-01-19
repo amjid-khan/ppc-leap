@@ -33,3 +33,9 @@
     font-family: "Roboto", sans-serif;
   box-sizing: border-box;
 }
+
+/* Logo loader shimmer – account switch */
+@keyframes shimmer {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(350%); }
+}

@@ -402,24 +402,42 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* SWITCHING LOADER OVERLAY */}
+      {/* SWITCHING LOADER OVERLAY - Logo-based attractive loader */}
       {isAccountSwitching && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center transition-all duration-300">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 flex flex-col items-center space-y-4 border border-gray-200 dark:border-gray-700">
-            {/* Animated Spinner */}
-            <div className="relative w-16 h-16">
-              <div className="absolute inset-0 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-transparent border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-5 border border-gray-200 dark:border-gray-700 min-w-[220px]">
+            {/* Logo + Animated Ring */}
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              {/* Soft outer glow */}
+              <div className="absolute inset-0 rounded-full bg-green-400/10 dark:bg-green-500/10 animate-ping" style={{ animationDuration: "2s" }} />
+              {/* Static ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-gray-200 dark:border-gray-600" />
+              {/* Spinning accent – green (Leap brand) */}
+              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-green-500 border-r-green-400 dark:border-t-green-400 dark:border-r-green-300 animate-spin" />
+              {/* Logo – center, subtle pulse */}
+              <div className="relative z-10 flex items-center justify-center animate-pulse" style={{ animationDuration: "1.8s" }}>
+                <img
+                  src="https://mls0rqzktgmc.i.optimole.com/w:77/h:36/q:mauto/ig:avif/https://ppcleap.com/wp-content/uploads/2025/05/Vector-1.png"
+                  alt="Leap"
+                  className="w-14 h-auto object-contain drop-shadow-sm"
+                  onError={(e) => { e.target.src = "/logo.jpg"; e.target.className = "w-12 h-12 object-contain rounded"; }}
+                />
+              </div>
             </div>
-            
+
             {/* Loading Text */}
             <div className="text-center">
-              <p className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+              <p className="text-base font-semibold text-gray-900 dark:text-white mb-0.5">
                 Switching Account
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Please wait...
               </p>
+            </div>
+
+            {/* Thin progress line */}
+            <div className="w-full h-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+              <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-green-500 to-green-400 dark:from-green-400 dark:to-green-300" style={{ animation: "shimmer 1.2s ease-in-out infinite" }} />
             </div>
           </div>
         </div>

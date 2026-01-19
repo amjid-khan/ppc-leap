@@ -6,7 +6,6 @@ import {
   TrendingUp,
   Package,
   BarChart3,
-  ShoppingBag,
   Activity,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -21,6 +20,10 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
 } from "recharts";
 
 const Dashboard = () => {
@@ -170,6 +173,12 @@ const Dashboard = () => {
     );
   };
 
+  const statusChartData = [
+    { name: "Approved", value: stats.approvedProducts, color: "#22c55e" },
+    { name: "Disapproved", value: stats.disapprovedProducts, color: "#ef4444" },
+    { name: "Pending", value: stats.pendingProducts, color: "#f59e0b" },
+  ].filter((d) => d.value > 0);
+
   return (
     <div className="">
       {/* Premium Header */}
@@ -279,38 +288,125 @@ const Dashboard = () => {
 
 
 
-      {/* Status Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Status Distribution */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-indigo-50 dark:bg-indigo-900 p-2.5 rounded-lg">
-              <BarChart3
-                size={22}
-                className="text-indigo-600 dark:text-indigo-400"
-              />
+      {/* Product Status – Full‑width modern graph card */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8 overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-50 dark:bg-indigo-900/40 p-2.5 rounded-xl">
+              <BarChart3 size={22} className="text-indigo-600 dark:text-indigo-400" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Product Status Distribution
-            </h2>
-          </div>
-          <div className="space-y-5">
-            {/* Approved Bar */}
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Approved
-                  </span>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Product Status Overview
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Approved, disapproved &amp; pending at a glance
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center">
+          {/* Donut chart */}
+          <div className="relative w-full lg:max-w-[280px] h-[220px] flex-shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Tooltip
+                  formatter={(v) => v.toLocaleString()}
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "1px solid var(--tw-gray-200, #e5e7eb)",
+                    background: "var(--tw-bg-white, #fff)",
+                  }}
+                />
+                <Pie
+                  data={statusChartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={56}
+                  outerRadius={88}
+                  paddingAngle={2}
+                  dataKey="value"
+                  stroke="transparent"
+                >
+                  {statusChartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            {/* Center label */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats.totalProducts.toLocaleString()}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Total
+              </span>
+            </div>
+          </div>
+
+          {/* Stats blocks + stacked bar */}
+          <div className="flex-1 w-full min-w-0 space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-green-50/80 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-green-500/15 dark:bg-green-500/25 flex items-center justify-center">
+                  <CheckCircle className="text-green-600 dark:text-green-400" size={22} />
                 </div>
-                <span className="text-base font-bold text-green-600 dark:text-green-400">
-                  {stats.approvedProducts}
-                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Approved</p>
+                  <p className="text-xl font-bold text-green-700 dark:text-green-400 tabular-nums">
+                    {stats.approvedProducts.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {stats.totalProducts > 0
+                      ? `${Math.round((stats.approvedProducts / stats.totalProducts) * 1000) / 10}% of total`
+                      : "—"}
+                  </p>
+                </div>
               </div>
-              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5">
+
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-red-50/80 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-red-500/15 dark:bg-red-500/25 flex items-center justify-center">
+                  <XCircle className="text-red-600 dark:text-red-400" size={22} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Disapproved</p>
+                  <p className="text-xl font-bold text-red-700 dark:text-red-400 tabular-nums">
+                    {stats.disapprovedProducts.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {stats.totalProducts > 0
+                      ? `${Math.round((stats.disapprovedProducts / stats.totalProducts) * 1000) / 10}% of total`
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-50/80 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-amber-500/15 dark:bg-amber-500/25 flex items-center justify-center">
+                  <AlertCircle className="text-amber-600 dark:text-amber-400" size={22} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
+                  <p className="text-xl font-bold text-amber-700 dark:text-amber-400 tabular-nums">
+                    {stats.pendingProducts.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {stats.totalProducts > 0
+                      ? `${Math.round((stats.pendingProducts / stats.totalProducts) * 1000) / 10}% of total`
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stacked bar – mini graph */}
+            <div>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Distribution</p>
+              <div className="h-3 w-full rounded-full flex overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <div
-                  className="bg-green-500 h-2.5 rounded-full"
+                  className="h-full bg-green-500 transition-all duration-500"
                   style={{
                     width: `${
                       stats.totalProducts > 0
@@ -318,54 +414,19 @@ const Dashboard = () => {
                         : 0
                     }%`,
                   }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Disapproved Bar */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Disapproved
-                  </span>
-                </div>
-                <span className="text-base font-bold text-red-500 dark:text-red-400">
-                  {stats.disapprovedProducts}
-                </span>
-              </div>
-              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5">
+                />
                 <div
-                  className="bg-red-500 h-2.5 rounded-full"
+                  className="h-full bg-red-500 transition-all duration-500"
                   style={{
                     width: `${
                       stats.totalProducts > 0
-                        ? (stats.disapprovedProducts / stats.totalProducts) *
-                          100
+                        ? (stats.disapprovedProducts / stats.totalProducts) * 100
                         : 0
                     }%`,
                   }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Pending Bar */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Pending
-                  </span>
-                </div>
-                <span className="text-base font-bold text-amber-600 dark:text-amber-400">
-                  {stats.pendingProducts}
-                </span>
-              </div>
-              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5">
+                />
                 <div
-                  className="bg-amber-500 h-2.5 rounded-full"
+                  className="h-full bg-amber-500 transition-all duration-500"
                   style={{
                     width: `${
                       stats.totalProducts > 0
@@ -373,75 +434,8 @@ const Dashboard = () => {
                         : 0
                     }%`,
                   }}
-                ></div>
+                />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Stats - Light Colors */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-blue-50 dark:bg-blue-900 p-2.5 rounded-lg">
-              <ShoppingBag
-                size={22}
-                className="text-blue-600 dark:text-blue-400"
-              />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Quick Stats
-            </h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900 rounded-xl border border-green-100 dark:border-green-800">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-100 dark:bg-green-800 p-2.5 rounded-lg">
-                  <CheckCircle
-                    className="text-green-600 dark:text-green-400"
-                    size={22}
-                  />
-                </div>
-                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Approved Products
-                </span>
-              </div>
-              <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {stats.approvedProducts.toLocaleString()}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900 rounded-xl border border-red-100 dark:border-red-800">
-              <div className="flex items-center gap-3">
-                <div className="bg-red-100 dark:bg-red-800 p-2.5 rounded-lg">
-                  <XCircle
-                    className="text-red-600 dark:text-red-400"
-                    size={22}
-                  />
-                </div>
-                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Disapproved Products
-                </span>
-              </div>
-              <span className="text-2xl font-bold text-red-600 dark:text-red-400">
-                {stats.disapprovedProducts.toLocaleString()}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900 rounded-xl border border-amber-100 dark:border-amber-800">
-              <div className="flex items-center gap-3">
-                <div className="bg-amber-100 dark:bg-amber-800 p-2.5 rounded-lg">
-                  <AlertCircle
-                    className="text-amber-600 dark:text-amber-400"
-                    size={22}
-                  />
-                </div>
-                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Pending Review
-                </span>
-              </div>
-              <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                {stats.pendingProducts.toLocaleString()}
-              </span>
             </div>
           </div>
         </div>
