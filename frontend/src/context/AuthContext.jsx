@@ -158,10 +158,11 @@ export const AuthProvider = ({ children }) => {
       const hasValidCache = cachedProducts && cacheTime && (now - cacheTime < 30 * 60 * 1000);
 
       if (!hasValidCache) {
+        console.log(`🔄 No valid cache for ${merchantId}, fetching in background...`);
         // Fetch in background (don't await)
         fetchProductsInBackground(merchantId);
       } else {
-        console.log("✅ Using cached products");
+        console.log(`✅ Using cached products for ${merchantId}`);
       }
 
       // ⏱️ Keep loader visible for 2 seconds minimum

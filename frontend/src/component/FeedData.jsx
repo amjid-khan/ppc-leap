@@ -31,6 +31,8 @@ const FeedData = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showAccountSwitchNotification, setShowAccountSwitchNotification] = useState(false);
+  const [prevAccountId, setPrevAccountId] = useState(null);
   const filterDropdownRef = useRef(null);
 
   // Drag scroll state
@@ -59,8 +61,13 @@ const FeedData = () => {
       setCurrentPage(1);
       setLoading(true);
 
+      // Add merchant ID to logs for debugging
+      console.log(`📦 Fetching products for merchant: ${selectedAccount?.merchantId}`);
+
       const result = await getProducts(1, 10000);
       if (result.success) {
+        console.log(`✅ Got ${result.products.length} products for merchant: ${selectedAccount?.merchantId}`);
+        
         const cleanDescription = (text) => {
           if (!text) return "";
           // Remove leading "About this item:" (case-insensitive) and any leading whitespace/newlines
@@ -88,10 +95,12 @@ const FeedData = () => {
           availability: product.availability,
           link: product.link,
           imageLink: product.imageLink,
+          approvalStatus: product.approvalStatus || "unknown", // Store raw approval status too
         }));
         setFeedData(mappedProducts);
         setTotalItems(mappedProducts.length);
       } else {
+        console.warn(`❌ Failed to fetch products for merchant: ${selectedAccount?.merchantId}`);
         setFeedData([]);
         setTotalItems(0);
       }
@@ -101,6 +110,16 @@ const FeedData = () => {
 
     fetchProductsData();
   }, [getProducts, selectedAccount]);
+
+  // Show notification when account switches
+  useEffect(() => {
+    if (selectedAccount?.merchantId && prevAccountId && prevAccountId !== selectedAccount?.merchantId) {
+      setShowAccountSwitchNotification(true);
+      const timer = setTimeout(() => setShowAccountSwitchNotification(false), 3000);
+      return () => clearTimeout(timer);
+    }
+    setPrevAccountId(selectedAccount?.merchantId);
+  }, [selectedAccount?.merchantId, prevAccountId]);
 
   // Filter data based on search and status filter
   const filteredData = feedData.filter((item) => {
@@ -352,7 +371,13 @@ const FeedData = () => {
                 currentData.map((item) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800 group"
+                    className={`hover:bg-gray-50 dark:hover:bg-gray-800 group border-l-4 ${
+                      item.status === "disapproved" 
+                        ? "border-l-red-500 bg-red-50/20 dark:bg-red-900/10" 
+                        : item.status === "pending"
+                        ? "border-l-yellow-500 bg-yellow-50/20 dark:bg-yellow-900/10"
+                        : "border-l-green-500"
+                    }`}
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center">
@@ -361,14 +386,20 @@ const FeedData = () => {
                             className="text-green-500 mr-2"
                             size={18}
                           />
+                        ) : item.status === "pending" ? (
+                          <div className="w-[18px] h-[18px] rounded-full border-2 border-yellow-500 mr-2 flex items-center justify-center">
+                            <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                          </div>
                         ) : (
                           <XCircle className="text-red-500 mr-2" size={18} />
                         )}
                         <span
-                          className={`px-2 py-1 text-xs rounded-full ${
+                          className={`px-2 py-1 text-xs rounded-full font-medium ${
                             item.status === "approved"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                              : item.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                              : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                           }`}
                         >
                           {item.status}

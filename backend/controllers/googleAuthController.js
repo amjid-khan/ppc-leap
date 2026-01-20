@@ -19,22 +19,38 @@ export const googleLoginCallback = async (req, res) => {
     try {
         const user = req.user;
 
-        console.log(`\n========== GOOGLE LOGIN START =========`);
+        console.log(`\n========== GOOGLE LOGIN CALLBACK START ==========`);
         console.log(`User: ${user.email}`);
         console.log(`User ID: ${user._id}`);
+        console.log(`Google ID: ${user.googleId}`);
         console.log(`Has googleAccessToken: ${!!user.googleAccessToken}`);
         console.log(`Has googleRefreshToken: ${!!user.googleRefreshToken}`);
+        console.log(`Token expiry: ${user.googleTokenExpiry}`);
+
+        // Verify tokens exist before fetching accounts
+        if (!user.googleAccessToken || !user.googleRefreshToken) {
+            console.error(`❌ Missing required Google tokens!`);
+            console.error(`   Access Token: ${!!user.googleAccessToken}`);
+            console.error(`   Refresh Token: ${!!user.googleRefreshToken}`);
+            return res.redirect(`${process.env.CLIENT_URL}/login?error=missing_tokens`);
+        }
 
         // Fetch merchant accounts linked to this email
-        console.log(`\nAttempting to fetch merchant accounts...`);
+        console.log(`\nAttempting to fetch merchant accounts for ${user.email}...`);
         const accounts = await fetchGoogleMerchantAccounts(user);
-        console.log(`Fetched ${accounts.length} merchant accounts for ${user.email}`);
+        console.log(`✅ Fetched ${accounts.length} merchant accounts for ${user.email}`);
+
+        if (accounts.length === 0) {
+            console.warn(`⚠️ No merchant accounts found for ${user.email}`);
+            console.warn(`User may need to link a Google Merchant Center account`);
+        }
 
         // Reload user from database to get updated data
         const updatedUser = await User.findById(user._id);
-        console.log(`\nDatabase check:`);
-        console.log(`Accounts in DB: ${updatedUser.googleMerchantAccounts.length}`);
-        console.log(`Selected Account: ${updatedUser.selectedAccount}`);
+        console.log(`\nDatabase verification:`);
+        console.log(`  Accounts in DB: ${updatedUser.googleMerchantAccounts.length}`);
+        console.log(`  Selected Account: ${updatedUser.selectedAccount}`);
+        console.log(`  Email: ${updatedUser.email}`);
 
         const token = jwt.sign(
             {
@@ -48,13 +64,16 @@ export const googleLoginCallback = async (req, res) => {
 
         // Return token with merchant account info
         const callbackUrl = `${process.env.CLIENT_URL}/admin?token=${token}`;
-        console.log(`\nRedirecting to: ${callbackUrl}`);
-        console.log(`========== GOOGLE LOGIN END =========\n`);
+        console.log(`\n✅ Login successful for ${user.email}`);
+        console.log(`Redirecting to: ${callbackUrl}`);
+        console.log(`========== GOOGLE LOGIN CALLBACK END ==========\n`);
 
         return res.redirect(callbackUrl);
     } catch (error) {
-        console.error("Google Auth Error:", error.message);
-        console.error("Full error:", error);
+        console.error(`\n❌ Google Auth Callback Error:`);
+        console.error(`   Error: ${error.message}`);
+        console.error(`   Stack: ${error.stack}`);
+        console.error(`========== GOOGLE LOGIN CALLBACK ERROR END ==========\n`);
         return res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
     }
 };

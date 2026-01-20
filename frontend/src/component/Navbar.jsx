@@ -206,7 +206,7 @@ const Navbar = () => {
                         onClick={() => handleAccountSwitch(acc._id)}
                         className={`flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200 ${
                           selectedAccount?._id === acc._id
-                            ? "bg-blue-50 dark:bg-blue-900 border-r-2 border-blue-500"
+                            ? "bg-blue-50 dark:bg-green-900 border-r-2 border-green-500"
                             : ""
                         }`}
                       >
@@ -221,7 +221,7 @@ const Navbar = () => {
 
                         {selectedAccount?._id === acc._id && (
                           <svg
-                            className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 ml-2"
+                            className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 ml-2"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -296,7 +296,7 @@ const Navbar = () => {
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
+                <div className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-semibold border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
                   {avatarLetter}
                 </div>
               )}
@@ -323,7 +323,7 @@ const Navbar = () => {
                       onError={() => setImageError(true)}
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-semibold">
+                    <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center text-xl font-semibold">
                       {avatarLetter}
                     </div>
                   )}
