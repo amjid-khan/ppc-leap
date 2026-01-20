@@ -218,12 +218,13 @@ export const AuthProvider = ({ children }) => {
   }, [user, loading, selectedAccount]);
 
   // AUTH FUNCTIONS
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, confirmPassword) => {
     try {
       const res = await axios.post(`${API}/api/auth/register`, {
         name,
         email,
         password,
+        confirmPassword,
       });
       localStorage.setItem("token", res.data.token);
       persistUser(res.data.user);

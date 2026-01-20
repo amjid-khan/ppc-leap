@@ -61,6 +61,12 @@ const FeedData = () => {
 
       const result = await getProducts(1, 10000);
       if (result.success) {
+        const cleanDescription = (text) => {
+          if (!text) return "";
+          // Remove leading "About this item:" (case-insensitive) and any leading whitespace/newlines
+          return text.replace(/^\s*about this item:\s*/i, "");
+        };
+
         const mappedProducts = result.products.map((product) => ({
           id: product.offerId || product.id,
           displayId: product.offerId || product.id,
@@ -71,7 +77,7 @@ const FeedData = () => {
               ? "pending"
               : "disapproved",
           title: product.title || "",
-          description: product.raw?.description || product.description || "",
+          description: cleanDescription(product.raw?.description || product.description || ""),
           brand: product.brand || "",
           feedLabel: product.raw?.feedLabel || "GB",
           productType: product.raw?.productTypes?.[0] || "",

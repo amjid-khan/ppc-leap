@@ -17,10 +17,14 @@ const formatUserResponse = (user) => ({
 
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, confirmPassword } = req.body;
 
-        if (!name || !email || !password) {
+        if (!name || !email || !password || !confirmPassword) {
             return res.status(400).json({ message: "All fields required" });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: "Passwords do not match" });
         }
 
         const exists = await User.findOne({ email });
@@ -95,12 +99,12 @@ export const loginUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find();
+        // superadmin ko hi query me exclude kar diya
+        const users = await User.find({ role: { $ne: 'superadmin' } });
 
         const usersWithAccounts = users.map(user => {
-            const userObj = user.toObject ? user.toObject() : (typeof user === 'object' ? user : {});
+            const userObj = user.toObject ? user.toObject() : {};
 
-            // Add accounts with product count
             const accountsWithProductCount = (userObj.googleMerchantAccounts || []).map(account => ({
                 ...account,
                 productCount: account.productCount || 0
@@ -113,7 +117,9 @@ export const getAllUsers = async (req, res) => {
         });
 
         res.status(200).json(usersWithAccounts);
+
     } catch (error) {
+        console.error("Error fetching users:", error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -123,38 +129,49 @@ export const getAllAccounts = async (req, res) => {
     try {
         const users = await User.find().select('name email googleMerchantAccounts');
 
-        const allAccounts = [];
+        const groupedByEmail = {};
 
         for (const user of users) {
             if (user.googleMerchantAccounts && user.googleMerchantAccounts.length > 0) {
+
+                // Create email group if not exists
+                if (!groupedByEmail[user.email]) {
+                    groupedByEmail[user.email] = {
+                        userEmail: user.email || "N/A",
+                        userId: user._id.toString(),
+                        userName: user.name || "N/A",
+                        accounts: []
+                    };
+                }
+
                 for (const account of user.googleMerchantAccounts) {
-                    // Convert account to plain object if it's a Mongoose document
-                    const accountObj = account.toObject ? account.toObject() : (typeof account === 'object' ? account : {});
+                    const accountObj = account.toObject
+                        ? account.toObject()
+                        : (typeof account === 'object' ? account : {});
 
-                    // Get product count from DB (already cached)
-                    const productCount = accountObj.productCount || 0;
-
-                    allAccounts.push({
+                    groupedByEmail[user.email].accounts.push({
                         id: accountObj.id || accountObj._id || null,
                         name: accountObj.name || "Unnamed Account",
                         email: accountObj.email || "",
                         websiteUrl: accountObj.websiteUrl || "",
-                        userId: user._id.toString(), // Convert to string for frontend
-                        userName: user.name || "N/A",
-                        userEmail: user.email || "N/A",
-                        productCount: productCount,
+                        productCount: accountObj.productCount || 0,
                         productCountUpdatedAt: accountObj.productCountUpdatedAt || null
                     });
                 }
             }
         }
 
-        res.status(200).json(allAccounts);
+        // Convert object to array
+        const result = Object.values(groupedByEmail);
+
+        res.status(200).json(result);
+
     } catch (error) {
         console.error("Error fetching accounts:", error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // GET PRODUCT COUNT FOR SPECIFIC ACCOUNT
 export const getProductCount = async (req, res) => {
