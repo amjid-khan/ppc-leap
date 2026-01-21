@@ -9,6 +9,7 @@ import passport from "passport";                   // <-- import passport
 import setupPassport from "./config/passport.js";  // <-- import setupPassport
 import googleAuthRoutes from "./routes/googleAuthRoutes.js"; // <-- Google routes
 import productRoutes from "./routes/productRoutes.js"; // <-- Product routes
+import merchantErrorsRoutes from "./routes/merchantErrorsRoutes.js";
 
 
 
@@ -40,6 +41,7 @@ app.use(passport.initialize());
 app.use("/api/auth", authRoutes);       // ... /api/auth/login, /api/auth/register
 app.use("/api/auth", googleAuthRoutes); // Google OAuth
 app.use("/api/merchant", productRoutes);  // ... /api/merchant/products
+app.use("/api", merchantErrorsRoutes);
 
 
 // Connect to MongoDB

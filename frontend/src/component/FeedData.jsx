@@ -371,13 +371,7 @@ const FeedData = () => {
                 currentData.map((item) => (
                   <tr
                     key={item.id}
-                    className={`hover:bg-gray-50 dark:hover:bg-gray-800 group border-l-4 ${
-                      item.status === "disapproved" 
-                        ? "border-l-red-500 bg-red-50/20 dark:bg-red-900/10" 
-                        : item.status === "pending"
-                        ? "border-l-yellow-500 bg-yellow-50/20 dark:bg-yellow-900/10"
-                        : "border-l-green-500"
-                    }`}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 group"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center">
@@ -463,7 +457,7 @@ const FeedData = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900 dark:text-white">
+                      <div className="text-sm text-gray-900 dark:text-white line-clamp-3 max-w-48">
                         {item.productType}
                       </div>
                     </td>
