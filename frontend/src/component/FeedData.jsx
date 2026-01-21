@@ -112,14 +112,14 @@ const FeedData = () => {
   }, [getProducts, selectedAccount]);
 
   // Show notification when account switches
-  useEffect(() => {
-    if (selectedAccount?.merchantId && prevAccountId && prevAccountId !== selectedAccount?.merchantId) {
-      setShowAccountSwitchNotification(true);
-      const timer = setTimeout(() => setShowAccountSwitchNotification(false), 3000);
-      return () => clearTimeout(timer);
-    }
-    setPrevAccountId(selectedAccount?.merchantId);
-  }, [selectedAccount?.merchantId, prevAccountId]);
+  // useEffect(() => {
+  //   if (selectedAccount?.merchantId && prevAccountId && prevAccountId !== selectedAccount?.merchantId) {
+  //     setShowAccountSwitchNotification(true);
+  //     const timer = setTimeout(() => setShowAccountSwitchNotification(false), 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  //   setPrevAccountId(selectedAccount?.merchantId);
+  // }, [selectedAccount?.merchantId, prevAccountId]);
 
   // Filter data based on search and status filter
   const filteredData = feedData.filter((item) => {

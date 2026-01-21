@@ -8,7 +8,8 @@ const getGroupKey = (issue) => {
     return issue.attributeName ? `${code}__${issue.attributeName}` : code;
 };
 
-const addToGrouped = (groupedIssues, issue, productId) => {
+// productInfo: { id, title, link } – ProductStatus se; agar na ho to sirf productCount update hoga
+const addToGrouped = (groupedIssues, issue, productId, productInfo = null) => {
     const code = issue.code || "UNKNOWN";
     const groupKey = getGroupKey(issue);
     if (!groupedIssues[groupKey]) {
@@ -18,10 +19,13 @@ const addToGrouped = (groupedIssues, issue, productId) => {
             title: issue.description || issue.detail || issue.code || code,
             severity: issue.servability === "disapproved" ? "critical" : (issue.severity || "warning"),
             products: new Set(),
+            productDetails: [],
             exampleDetail: issue.detail || "",
         };
     }
-    groupedIssues[groupKey].products.add(productId);
+    const g = groupedIssues[groupKey];
+    if (productInfo && !g.products.has(productId)) g.productDetails.push(productInfo);
+    g.products.add(productId);
 };
 
 export const fetchMerchantErrors = async (user, merchantId) => {
@@ -81,11 +85,12 @@ export const fetchMerchantErrors = async (user, merchantId) => {
         for (const status of statuses) {
             const pid = status.productId;
             const dests = status.destinationStatuses || [];
+            const productInfo = { id: pid, title: status.title || "", link: status.link || "" };
 
             // (a) ROOT-level itemLevelIssues – yahi primary source hai
             const rootIssues = status.itemLevelIssues || [];
             for (const issue of rootIssues) {
-                addToGrouped(groupedIssues, issue, pid);
+                addToGrouped(groupedIssues, issue, pid, productInfo);
                 productIdsWithItemIssues.add(pid);
             }
 
@@ -93,7 +98,7 @@ export const fetchMerchantErrors = async (user, merchantId) => {
             for (const dest of dests) {
                 const di = dest.itemLevelIssues || [];
                 for (const issue of di) {
-                    addToGrouped(groupedIssues, issue, pid);
+                    addToGrouped(groupedIssues, issue, pid, productInfo);
                     productIdsWithItemIssues.add(pid);
                 }
             }
@@ -109,10 +114,12 @@ export const fetchMerchantErrors = async (user, merchantId) => {
                                 title: "Disapproved product",
                                 severity: "critical",
                                 products: new Set(),
+                                productDetails: [],
                                 exampleDetail: "Product is disapproved for this destination.",
                             };
                         }
                         groupedIssues["DISAPPROVED"].products.add(pid);
+                        groupedIssues["DISAPPROVED"].productDetails.push(productInfo);
                         break;
                     }
                     if (s === "pending") {
@@ -122,10 +129,12 @@ export const fetchMerchantErrors = async (user, merchantId) => {
                                 title: "Pending review",
                                 severity: "warning",
                                 products: new Set(),
+                                productDetails: [],
                                 exampleDetail: "Product is pending review for this destination.",
                             };
                         }
                         groupedIssues["PENDING"].products.add(pid);
+                        groupedIssues["PENDING"].productDetails.push(productInfo);
                         break;
                     }
                 }
@@ -151,6 +160,7 @@ export const fetchMerchantErrors = async (user, merchantId) => {
                     title: issue.detail || issue.description || issue.code,
                     severity: issue.severity || "critical",
                     products: new Set(),
+                    productDetails: [],
                     exampleDetail: issue.detail || "",
                 };
             }
@@ -173,5 +183,6 @@ export const fetchMerchantErrors = async (user, merchantId) => {
         impact:
             issue.products.size < 5 ? "Low impact" : issue.products.size < 20 ? "Medium impact" : "High impact",
         exampleDetail: issue.exampleDetail,
+        products: issue.productDetails || [],
     }));
 };
